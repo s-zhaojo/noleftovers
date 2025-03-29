@@ -9,7 +9,7 @@ function App() {
       <div className="App">
         <div className="title-container">
           <img 
-            src="/Users/joshuazhao/Documents/noleftovers.png" 
+            src="https://no-leftovers.com/assets/logos/NLO-Main-Logo-300.png" 
             alt="No Leftovers Logo" 
             className="title-image" 
           />
