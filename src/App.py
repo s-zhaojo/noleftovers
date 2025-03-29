@@ -50,6 +50,9 @@ def verify_token():
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 
+def create():
+    return "Hello World"
+
 """
 
 Paste this in the body tag at the bottom of the html file before the firebase services uses
