@@ -57,7 +57,7 @@ def home():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5002))
-    print(f"Starting server on http://localhost:{port}")
+    print(f"Starting server on https://noleftovers-backend.onrender.com/")
     app.run(host='0.0.0.0', debug=True, port=port)
 
 """
