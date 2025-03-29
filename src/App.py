@@ -10,8 +10,13 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Simple CORS setup - allow all origins
-CORS(app)
+CORS(app, resources={
+    r"/verify-token": {
+        "origins": ["https://your-frontend-domain.com"],
+        "methods": ["POST"],
+        "allow_headers": ["Authorization", "Content-Type"]
+    }
+})
 
 # Initialize Firebase Admin
 cred = credentials.Certificate({
@@ -32,24 +37,27 @@ firebase_admin.initialize_app(cred)
 @app.route('/verify-token', methods=['POST'])
 def verify_token():
     try:
-        # Get the token from the Authorization header
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({'error': 'No token provided'}), 401
+            app.logger.warning('No token provided')
+            return jsonify({'error': 'Authorization header missing or invalid'}), 401
         
         token = auth_header.split('Bearer ')[1]
-        
-        # Verify the token
         decoded_token = auth.verify_id_token(token)
         
+        app.logger.info(f"Successfully verified token for user: {decoded_token['uid']}")
         return jsonify({
             'success': True,
             'uid': decoded_token['uid'],
             'email': decoded_token.get('email', '')
         })
+    except auth.InvalidIdTokenError as e:
+        app.logger.error(f"Invalid token: {str(e)}")
+        return jsonify({'error': 'Invalid token'}), 401
     except Exception as e:
-        print(f"Error: {str(e)}")
-        return jsonify({'error': str(e)}), 401
+        app.logger.error(f"Authentication error: {str(e)}")
+        return jsonify({'error': 'Authentication failed'}), 401
+
 
 @app.route('/')
 def home():

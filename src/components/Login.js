@@ -18,6 +18,11 @@ function Login() {
       // First authenticate with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
+
+      if (!process.env.REACT_APP_BACKEND_URL) {
+        console.error('Backend URL is not configured!');
+        // Handle this error appropriately
+      }
       
       // Send token to backend for verification
       console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
