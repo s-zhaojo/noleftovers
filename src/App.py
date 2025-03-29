@@ -15,7 +15,8 @@ CORS(app, resources={
         "origins": [
             "http://localhost:3000",  # React development server
             "https://noleftovers-fe4a1.vercel.app",  # Your Vercel domain
-            "https://noleftovers-fe4a1.web.app"  # Firebase hosting domain
+            "https://noleftovers-fe4a1.web.app",  # Firebase hosting domain
+            "https://noleftovers.onrender.com"  # Your Render domain
         ],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "Accept"],
