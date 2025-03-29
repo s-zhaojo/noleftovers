@@ -48,6 +48,7 @@
 .title-container {
   display: flex;
   align-items: center;
+  color: #228B22;
 }
 
 .title-image {
