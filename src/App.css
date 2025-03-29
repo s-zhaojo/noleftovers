@@ -1,9 +1,5 @@
 .App {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* Align to the top of the screen */
-  align-items: center; /* Center horizontally */
-  height: 100vh; /* Full screen height */
+  text-align: center;
 }
 
 .App-logo {
@@ -52,20 +48,15 @@
 .title-container {
   display: flex;
   align-items: center;
-  justify-content: center; /* Center the content horizontally */
-  position: absolute;
-  top: 20px; /* Optional: You can adjust how far from the top you want it */
 }
 
 .title-image {
-  width: 40px; /* You can adjust the size of the image */
+  width: 40px;  /* You can adjust the size of the image */
   height: auto;
-  margin-right: 10px; /* Space between the image and the title */
+  margin-right: 10px;  /* Space between the image and the title */
 }
 
 .title {
-  font-size: 3rem; /* Larger title size */
+  font-size: 2rem;
   font-weight: bold;
-  text-align: center;
-  color: #333;
 }
