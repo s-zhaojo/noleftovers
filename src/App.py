@@ -9,16 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-# Configure CORS with more specific settings
+# Configure CORS to allow all origins during development
 CORS(app, 
      resources={
          r"/*": {
-             "origins": [
-                 "http://localhost:3000",
-                 "https://noleftovers-fe4a1.vercel.app",
-                 "https://noleftovers-fe4a1.web.app",
-                 "https://noleftovers.onrender.com"
-             ],
+             "origins": "*",  # Allow all origins
              "methods": ["GET", "POST", "OPTIONS"],
              "allow_headers": ["Content-Type", "Authorization", "Accept", "Origin"],
              "expose_headers": ["Content-Type", "Authorization"],
@@ -58,7 +53,7 @@ def verify_token():
     if request.method == 'OPTIONS':
         print("Handling OPTIONS request")
         response = jsonify({'message': 'OK'})
-        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
+        response.headers.add('Access-Control-Allow-Origin', '*')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
         response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
         response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -70,7 +65,9 @@ def verify_token():
     
     if not auth_header or not auth_header.startswith('Bearer '):
         print("No valid Authorization header found")
-        return jsonify({'error': 'No token provided'}), 401
+        response = jsonify({'error': 'No token provided'}), 401
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     
     token = auth_header.split('Bearer ')[1]
     print("Token received:", token[:20] + "...")  # Only print first 20 chars for security
@@ -85,12 +82,12 @@ def verify_token():
             'uid': decoded_token['uid'],
             'email': decoded_token.get('email', '')
         })
-        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
+        response.headers.add('Access-Control-Allow-Origin', '*')
         return response
     except Exception as e:
         print(f"Token verification error: {str(e)}")
         response = jsonify({'error': str(e)}), 401
-        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
+        response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
 @app.route('/')
