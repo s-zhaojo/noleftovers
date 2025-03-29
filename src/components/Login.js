@@ -12,26 +12,47 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(''); // Clear any previous errors
+    
     try {
+      // First authenticate with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
       
       // Send token to backend for verification
-      const response = await fetch('http://localhost:5000/verify-token', {
+      console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
+      console.log('Token:', token);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/verify-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        mode: 'cors', // Enable CORS
+        credentials: 'include' // Include credentials if needed
       });
 
-      if (response.ok) {
-        navigate('/dashboard'); // Redirect to dashboard after successful login
-      } else {
-        setError('Authentication failed');
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Authentication failed');
       }
+
+      const data = await response.json();
+      console.log('Login successful:', data);
+      navigate('/dashboard');
     } catch (error) {
-      setError(error.message);
+      console.error('Login error:', error);
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setError('Invalid email or password');
+      } else if (error.message === 'Failed to fetch') {
+        setError('Unable to connect to server. Please make sure the backend is running.');
+      } else {
+        setError(error.message || 'An error occurred during login');
+      }
     }
   };
 
@@ -47,6 +68,7 @@ function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            placeholder="Enter your email"
           />
         </div>
         <div className="form-group">
@@ -56,6 +78,7 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            placeholder="Enter your password"
           />
         </div>
         <button type="submit">Login</button>

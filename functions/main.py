@@ -4,6 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 import os
 from dotenv import load_dotenv
+import functions_framework
 
 # Load environment variables
 load_dotenv()
@@ -45,32 +46,20 @@ def login():
 
 @app.route('/verify-token', methods=['POST', 'OPTIONS'])
 def verify_token():
-    print("\n=== New Request ===")
-    print("Request method:", request.method)
-    print("Request headers:", dict(request.headers))
-    print("Request origin:", request.headers.get('Origin'))
-    
     # Handle preflight request
     if request.method == 'OPTIONS':
-        print("Handling OPTIONS request")
         return '', 204
 
     # Get the token from the Authorization header
     auth_header = request.headers.get('Authorization')
-    print("Auth header:", auth_header)
-    
     if not auth_header or not auth_header.startswith('Bearer '):
-        print("No valid Authorization header found")
         return jsonify({'error': 'No token provided'}), 401
     
     token = auth_header.split('Bearer ')[1]
-    print("Token received:", token[:20] + "...")  # Only print first 20 chars for security
     
     try:
         # Verify the token
         decoded_token = auth.verify_id_token(token)
-        print("Token verified successfully")
-        print("Decoded token:", decoded_token)
         return jsonify({
             'success': True,
             'uid': decoded_token['uid'],
@@ -84,10 +73,16 @@ def verify_token():
 def home():
     return jsonify({'message': 'Flask server is running!'})
 
+# For local development
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5002))
+    port = int(os.environ.get('PORT', 5001))
     print(f"Starting server on http://localhost:{port}")
-    app.run(host='0.0.0.0', debug=True, port=port)
+    app.run(debug=True, port=port)
+
+# For Firebase Cloud Functions
+@functions_framework.http
+def main(request):
+    return app(request)
 
 """
 
