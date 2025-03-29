@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -9,8 +9,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-# Simple CORS setup
-CORS(app)
+# Configure CORS with explicit headers
+CORS(app, 
+     resources={
+         r"/*": {
+             "origins": ["http://localhost:3000"],
+             "methods": ["GET", "POST", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization"],
+             "supports_credentials": True
+         }
+     })
 
 # Initialize Firebase Admin
 cred = credentials.Certificate({
@@ -42,7 +50,12 @@ def verify_token():
     # Handle preflight request
     if request.method == 'OPTIONS':
         print("Handling OPTIONS request")
-        return '', 204
+        response = make_response()
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
 
     # Get the token from the Authorization header
     auth_header = request.headers.get('Authorization')
@@ -50,7 +63,9 @@ def verify_token():
     
     if not auth_header or not auth_header.startswith('Bearer '):
         print("No valid Authorization header found")
-        return jsonify({'error': 'No token provided'}), 401
+        response = make_response(jsonify({'error': 'No token provided'}), 401)
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+        return response
     
     token = auth_header.split('Bearer ')[1]
     print("Token received:", token[:20] + "...")  # Only print first 20 chars for security
@@ -60,14 +75,18 @@ def verify_token():
         decoded_token = auth.verify_id_token(token)
         print("Token verified successfully")
         print("Decoded token:", decoded_token)
-        return jsonify({
+        response = make_response(jsonify({
             'success': True,
             'uid': decoded_token['uid'],
             'email': decoded_token.get('email', '')
-        })
+        }))
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+        return response
     except Exception as e:
         print(f"Token verification error: {str(e)}")
-        return jsonify({'error': str(e)}), 401
+        response = make_response(jsonify({'error': str(e)}), 401)
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+        return response
 
 @app.route('/')
 def home():
