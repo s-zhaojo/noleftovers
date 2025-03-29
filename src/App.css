@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+.title {
+  font-size: 4rem;  /* You can adjust the size to make it even bigger */
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+  color: #333;  /* You can change the color if you'd like */
+}
+
