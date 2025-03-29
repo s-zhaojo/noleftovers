@@ -52,9 +52,6 @@
 .title-container {
   display: flex;
   align-items: center;
-  justify-content: center; /* Center the content horizontally */
-  position: absolute;
-  top: 20px; /* Optional: You can adjust how far from the top you want it */
 }
 
 .title-image {
