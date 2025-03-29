@@ -45,3 +45,20 @@
   color: #333;  /* You can change the color if you'd like */
 }
 
+.title-container {
+  display: flex;
+  align-items: center;
+}
+
+.title-image {
+  width: 40px;  /* You can adjust the size of the image */
+  height: auto;
+  margin-right: 10px;  /* Space between the image and the title */
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+

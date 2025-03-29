@@ -7,7 +7,14 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <h1 className="title">No Leftovers</h1> 
+        <div className="title-container">
+          <img 
+            src="/Users/joshuazhao/Documents/noleftovers.png" 
+            alt="No Leftovers Logo" 
+            className="title-image" 
+          />
+          <h1 className="title">No Leftovers</h1>
+        </div>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
