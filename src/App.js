@@ -7,6 +7,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <h1 className="title">No Leftovers</h1> 
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
@@ -15,7 +16,6 @@ function App() {
       </div>
     </Router>
   );
-  // Trying to commit
 }
 
 export default App;
