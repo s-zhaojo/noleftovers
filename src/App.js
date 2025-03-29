@@ -24,8 +24,10 @@ function App() {
             className="profile-img"
           />
           <h1>John Doe</h1>
-          <p className="title">CEO & Founder, Example</p>
-          <p>Harvard University</p>
+          <p className="title">1766546</p>
+          <p>Points: 400</p>
+          <p>Number of times bought lunch: 14</p>
+          <p>Number of times submitted photo: 14</p>
           <div className="social-links">
             <a href="#"><i className="fa fa-dribbble"></i></a>
             <a href="#"><i className="fa fa-twitter"></i></a>
