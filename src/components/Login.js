@@ -34,8 +34,8 @@ function Login() {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         },
-        mode: 'cors', // Enable CORS
-        credentials: 'include' // Include credentials if needed
+        mode: 'cors',
+        credentials: 'include'
       });
 
       console.log('Response status:', response.status);

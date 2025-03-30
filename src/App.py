@@ -12,9 +12,14 @@ app = Flask(__name__)
 
 CORS(app, resources={
     r"/verify-token": {
-        "origins": ["https://your-frontend-domain.com"],
-        "methods": ["POST"],
-        "allow_headers": ["Authorization", "Content-Type"]
+        "origins": [
+            "http://localhost:3000",
+            "https://noleftovers-fe4a1.web.app",
+            "https://noleftovers-krng.vercel.app"
+        ],
+        "methods": ["POST", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type", "Accept"],
+        "supports_credentials": True
     }
 })
 
