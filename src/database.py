@@ -54,12 +54,13 @@ def update_user_data(user_id, data):
 def create_user_object(user_id, user_data):
     """Create a User object from Firestore data"""
     try:
+        # Map Firestore data to User object fields
         user = User(
             uuid=user_id,
             name=user_data.get('name', ''),
             points=user_data.get('points', 0),
-            no_of_lunches_today=user_data.get('no_of_lunches_today', 0),
-            no_of_submissions_today=user_data.get('no_of_submissions_today', 0)
+            no_of_lunches_today=user_data.get('lunchesBought', 0),
+            no_of_submissions_today=user_data.get('photosSubmitted', 0)
         )
         return user.to_dict(), None, None
     except Exception as e:

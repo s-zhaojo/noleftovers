@@ -55,6 +55,7 @@ def verify_token_endpoint():
         return error_response, error_code
 
     user_data, error_response, error_code = get_user_data(user_id)
+    print(f"User data retrieved for {user_id}:", user_data)
     if error_response:
         return jsonify(error_response), error_code
 
