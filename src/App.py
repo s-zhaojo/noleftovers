@@ -163,6 +163,44 @@ def update_points():
         print(f"Error updating points: {str(e)}")
         return jsonify({'message': 'Internal server error'}), 500
 
+@app.route('/redeem-points', methods=['POST'])
+def redeem_points():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        points = data.get('points')
+
+        if not all([user_id, points]):
+            return jsonify({'message': 'Missing required fields'}), 400
+
+        # Get user's current points
+        user_ref = db.collection('users').document(user_id)
+        user_doc = user_ref.get()
+
+        if not user_doc.exists:
+            return jsonify({'message': 'User not found'}), 404
+
+        user_data = user_doc.to_dict()
+        current_points = user_data.get('points', 0)
+
+        # Check if user has enough points
+        if current_points + points < 0:
+            return jsonify({'message': 'Insufficient points'}), 400
+
+        # Update points
+        user_ref.update({
+            'points': current_points + points
+        })
+
+        return jsonify({
+            'message': 'Points updated successfully',
+            'new_points': current_points + points
+        }), 200
+
+    except Exception as e:
+        print(f"Error redeeming points: {str(e)}")
+        return jsonify({'message': 'Internal server error'}), 500
+
 @app.route('/')
 def home():
     return jsonify({'message': 'Flask server is running!'})
