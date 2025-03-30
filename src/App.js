@@ -16,6 +16,12 @@ function App() {
           <h1 className="title">No Leftovers</h1>
         </div>
         
+        
+
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+        </Routes>
         {/* Profile in the top right */}
         <div className="profile-card">
           <img 
@@ -36,11 +42,6 @@ function App() {
           </div>
           <p><button>Contact</button></p>
         </div>
-
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
       </div>
     </Router>
   );
