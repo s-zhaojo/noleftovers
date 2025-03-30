@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
-from database import get_user_data, update_user_data, create_user_object
+from database import get_user_data, update_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date
 from firebase_admin import firestore
 # Load environment variables
 load_dotenv()
@@ -15,7 +15,7 @@ app = Flask(__name__)
 CORS(app, 
      resources={r"/*": {
          "origins": [
-             "https://noleftovers-krng.vercel.app",  # Current Vercel deployment
+             "https://noleftovers-rho.vercel.app",  # Current Vercel deployment
              "http://localhost:3000"  # Local development
          ],
          "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -32,6 +32,8 @@ def add_meal_endpoint():
     date_taken = data.get('date_taken')
     pts = data.get('pts')
     date_taken = datetime.strptime(date_taken, '%Y-%m-%d')
+
+    add_meal(user_id, date_taken, pts)
 
     return jsonify({'success': True})
 
