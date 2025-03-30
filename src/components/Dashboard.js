@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = ({ user }) => {
-  const [points, setPoints] = useState(user.pts || 0);  // Local state to track points
+  const [points, setPoints] = useState(() => {
+    // Try getting the points from localStorage first
+    const savedPoints = localStorage.getItem('points');
+    return savedPoints ? parseInt(savedPoints, 10) : user.pts || 0;
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Save points to localStorage whenever it changes
+    localStorage.setItem('points', points);
+  }, [points]);
 
   return (
     <div className="dashboard-container">
