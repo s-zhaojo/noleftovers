@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = ({ user }) => {
+  const [points, setPoints] = useState(() => {
+    // Try getting the points from localStorage first
+    const savedPoints = localStorage.getItem('points');
+    return savedPoints ? parseInt(savedPoints, 10) : user.pts || 0;
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Save points to localStorage whenever it changes
+    localStorage.setItem('points', points);
+  }, [points]);
 
   return (
     <div className="dashboard-container">
@@ -15,7 +25,7 @@ const Dashboard = ({ user }) => {
       <div className="dashboard-stats">
         <div className="stat-card">
           <h3>Total Points</h3>
-          <div className="stat-value">{user.pts || 0}</div>
+          <div className="stat-value">{points}</div>
         </div>
         <div className="stat-card">
           <h3>Lunches Bought Today</h3>
@@ -42,4 +52,4 @@ const Dashboard = ({ user }) => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

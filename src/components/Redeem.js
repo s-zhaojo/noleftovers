@@ -7,9 +7,16 @@ const Redeem = () => {
   const location = useLocation();
   const { setPoints } = location.state || {};  // Access setPoints passed from Dashboard
   
+  // Function to update points
   const handlePointDeduction = (pointsToDeduct) => {
     if (setPoints) {
       setPoints((prevPoints) => prevPoints - pointsToDeduct);  // Deduct points and update Dashboard
+    } else {
+      // Update localStorage directly if setPoints is not available
+      const currentPoints = parseInt(localStorage.getItem('points'), 10) || 0;
+      const newPoints = currentPoints - pointsToDeduct;
+      localStorage.setItem('points', newPoints);
+      navigate('/dashboard');  // Navigate back to the dashboard after deduction
     }
   };
 
@@ -22,7 +29,7 @@ const Redeem = () => {
       
       <div className="redeem-items">
         <div className="redeem-item">
-          <button className="action-button" onClick={() => navigate('/dashboard')}>
+          <button onClick={() => handlePointDeduction(500)} className="action-button">
             <img 
               src="https://m.media-amazon.com/images/I/71zK01gJfML.jpg" 
               alt="Fruit Snack" 
@@ -32,7 +39,7 @@ const Redeem = () => {
           <p className="points-tag">500 Points</p>
         </div>
         <div className="redeem-item">
-          <button className="action-button" onClick={() => navigate('/dashboard')}>
+          <button onClick={() => handlePointDeduction(1000)} className="action-button">
             <img 
               src="https://live.staticflickr.com/65535/52765596162_1bee372f32_h.jpg" 
               alt="Lunch Tray" 
