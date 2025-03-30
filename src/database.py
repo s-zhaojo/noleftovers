@@ -14,6 +14,7 @@ def get_user_data(user_id):
         
         if user_doc.exists:
             logger.info(f"User data found for: {user_id}")
+            print(user_doc.to_dict())
             return user_doc.to_dict(), None, None
         else:
             logger.info(f"Creating new user document for: {user_id}")
