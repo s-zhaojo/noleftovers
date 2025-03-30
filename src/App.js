@@ -15,8 +15,15 @@ function App() {
           />
           <h1 className="title">No Leftovers</h1>
         </div>
-        
-        {/* Profile in the top right */}
+
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </div>
+    </Router>
+
+     {/* Profile in the top right */}
         <div className="profile-card">
           <img 
             src="https://t3.ftcdn.net/jpg/00/77/71/12/360_F_77711294_BA5QTjtgGPmLKCXGdtbAgZciL4kEwCnx.jpg" 
@@ -36,13 +43,6 @@ function App() {
           </div>
           <p><button>Contact</button></p>
         </div>
-
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </div>
-    </Router>
   );
 }
 
