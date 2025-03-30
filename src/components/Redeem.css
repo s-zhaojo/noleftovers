@@ -23,4 +23,27 @@
 
 .back-button:hover {
   background: #45a049;
-} 
+}
+
+.redeem-items {
+  display: flex;
+  justify-content: center;
+  gap: 4rem; /* Space between the two items */
+  margin-top: 2rem;
+}
+
+.redeem-item {
+  text-align: center;
+}
+
+.redeem-image {
+  width: 200px; /* Adjust size as needed */
+  height: auto;
+}
+
+.points-tag {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: bold;
+}
