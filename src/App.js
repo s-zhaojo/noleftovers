@@ -5,7 +5,6 @@ import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
 import Scan from './components/Scan';
 import ViewHistory from './components/ViewHistory';
-import AddMeal from './components/AddMeal';
 import './App.css';
 
 function App() {

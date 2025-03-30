@@ -5,7 +5,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
 from database import get_user_data, update_user_data, create_user_object
-
+from models import Meal
+from firebase_admin import firestore
 # Load environment variables
 load_dotenv()
 
@@ -32,9 +33,11 @@ def add_meal_endpoint():
     date_taken = data.get('date_taken')
     pts = data.get('pts')
     date_taken = datetime.strptime(date_taken, '%Y-%m-%d')
-    
+
     meal = Meal(user_id, date_taken, pts)
     meal_dict = meal.to_dict()
+   
+    db = firestore.client()
     db.collection('nsd417').collection('meals').add(meal_dict)
     
     return jsonify({'success': True})
