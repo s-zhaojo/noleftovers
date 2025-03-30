@@ -11,18 +11,27 @@ const Redeem = () => {
       <button onClick={() => navigate('/dashboard')} className="back-button">
         Back to Dashboard
       </button>
-      <img 
+      
+      <div className="redeem-items">
+        <div className="redeem-item">
+          <img 
             src="https://m.media-amazon.com/images/I/71zK01gJfML.jpg" 
-            alt="No Leftovers Logo" 
-            className="title-image" 
+            alt="Fruit Snack" 
+            className="redeem-image" 
           />
-      <img 
+          <p className="points-tag">500 Points</p>
+        </div>
+        <div className="redeem-item">
+          <img 
             src="https://live.staticflickr.com/65535/52765596162_1bee372f32_h.jpg" 
-            alt="No Leftovers Logo" 
-            className="title-image" 
+            alt="Lunch Tray" 
+            className="redeem-image" 
           />
+          <p className="points-tag">1000 Points</p>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Redeem; 
+export default Redeem;
