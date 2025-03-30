@@ -1,13 +1,9 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 from datetime import datetime
 from dotenv import load_dotenv
 import logging
-from io import BytesIO
-from werkzeug.utils import secure_filename
-import numpy as np
-import cv2
 
 # Local imports
 from auth import verify_token, login_user
@@ -16,12 +12,7 @@ from database import (
     create_user_object, 
     add_meal, 
     get_user_meals, 
-    get_meals_by_date, 
-    get_admin_data, 
-    update_admin_data, 
-    get_all_users, 
-    generate_qr_code, 
-    verify_admin
+    get_meals_by_date
 )
 
 # Set up logging
@@ -45,38 +36,6 @@ CORS(app,
          "supports_credentials": True,
          "expose_headers": ["Content-Type", "Authorization"]
      }})
-
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def calculate_food_volume(image_bytes):
-    """Calculate food volume from image using OpenCV"""
-    try:
-        # Convert bytes to numpy array
-        nparr = np.frombuffer(image_bytes, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
-        # Convert to grayscale
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
-        # Apply threshold to get binary image
-        _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-        
-        # Calculate the ratio of white pixels (food) to total pixels
-        total_pixels = binary.size
-        food_pixels = np.sum(binary == 255)
-        volume = food_pixels / total_pixels
-        
-        return float(volume)
-        
-    except Exception as e:
-        logger.error(f"Error calculating food volume: {str(e)}")
-        return 0.0
 
 @app.route('/add-meal', methods=['POST'])
 def add_meal_endpoint():
@@ -162,129 +121,6 @@ def dashboard_endpoint():
         return error_response, error_code
 
     return jsonify(user_dict)
-
-@app.route('/admin/users', methods=['GET'])
-def get_users_endpoint():
-    """Get all users (admin only)"""
-    # Verify admin token
-    user_id, error_response, error_code = verify_token(request)
-    if error_response:
-        return error_response, error_code
-        
-    # Get user data to check if admin
-    user_data, error_response, error_code = get_user_data(user_id)
-    if error_response:
-        return error_response, error_code
-        
-    # Check if user is admin (you'll need to add an is_admin field to your user documents)
-    if not user_data.get('is_admin', False):
-        return jsonify({'error': 'Unauthorized - Admin access required'}), 403
-        
-    # Get all users
-    users, error_response, error_code = get_all_users()
-    if error_response:
-        return error_response, error_code
-        
-    return jsonify(users)
-
-@app.route('/qr-code/<user_id>', methods=['GET'])
-def get_qr_code_endpoint(user_id):
-    """Get QR code for a user"""
-    # Verify token
-    requesting_user_id, error_response, error_code = verify_token(request)
-    if error_response:
-        return error_response, error_code
-        
-    # Get user data to check if admin or requesting their own QR code
-    user_data, error_response, error_code = get_user_data(requesting_user_id)
-    if error_response:
-        return error_response, error_code
-        
-    # Allow access if user is admin or requesting their own QR code
-    if not user_data.get('is_admin', False) and requesting_user_id != user_id:
-        return jsonify({'error': 'Unauthorized'}), 403
-        
-    # Generate QR code
-    qr_code, error_response, error_code = generate_qr_code(user_id)
-    if error_response:
-        return error_response, error_code
-        
-    # Return QR code as PNG image
-    return send_file(
-        BytesIO(qr_code),
-        mimetype='image/png',
-        as_attachment=True,
-        download_name=f'qr_code_{user_id}.png'
-    )
-
-@app.route('/admin/login', methods=['POST'])
-def admin_login_endpoint():
-    """Admin login endpoint"""
-    data = request.get_json()
-    admin_id = data.get('admin_id')
-
-    logger.debug(f"Admin login attempt with ID: {admin_id}")
-
-    # Verify admin ID
-    admin_data, error_response, error_code = verify_admin(admin_id)
-    if error_response:
-        logger.error(f"Admin login failed: {error_response}")
-        return error_response, error_code
-
-    logger.debug(f"Admin login successful: {admin_data}")
-    return jsonify(admin_data)
-
-@app.route('/analyze-food', methods=['POST'])
-def analyze_food_endpoint():
-    """Analyze food image using ML model"""
-    if 'image' not in request.files:
-        logger.error("No image file in request")
-        return jsonify({'error': 'No image provided'}), 400
-        
-    file = request.files['image']
-    if file.filename == '':
-        logger.error("Empty filename in request")
-        return jsonify({'error': 'No selected file'}), 400
-        
-    if file and allowed_file(file.filename):
-        try:
-            # Read the image bytes
-            image_bytes = file.read()
-            
-            logger.debug(f"Processing image: {file.filename}")
-            
-            # Calculate food volume
-            volume = calculate_food_volume(image_bytes)
-            logger.debug(f"Detected food volume: {volume}")
-            
-            # Calculate points based on volume
-            if volume == 0:
-                points = 50
-                message = "Empty plate - Great job!"
-            elif volume < 0.3:
-                points = -10
-                message = "Little food left"
-            elif volume < 0.6:
-                points = -25
-                message = "Moderate amount of food left"
-            else:
-                points = -40
-                message = "Large amount of food left"
-                
-            logger.debug(f"Calculated points: {points}")
-            
-            return jsonify({
-                'volume': volume,
-                'points': points,
-                'message': message
-            })
-            
-        except Exception as e:
-            logger.error(f"Error analyzing image: {str(e)}", exc_info=True)
-            return jsonify({'error': f'Failed to analyze image: {str(e)}'}), 500
-            
-    logger.error(f"Invalid file type: {file.filename}")
-    return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/')
 def home():
