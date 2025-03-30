@@ -1,5 +1,5 @@
 from firebase_admin import firestore
-from models import User
+from models.User import User
 from datetime import datetime
 import logging
 from firebase_init import db
@@ -39,6 +39,7 @@ def get_user_data(user_id):
 def create_user_object(user_id, user_data):
     """Create a User object from Firestore data"""
     try:
+        logger.debug(f"Creating user object with data: user_id={user_id}, user_data={user_data}")
         # Map Firestore data to User object fields with correct field names
         user = User(
             uuid=user_id,
@@ -47,10 +48,11 @@ def create_user_object(user_id, user_data):
             no_of_lunches_today=user_data.get('no_lunches_today', 0),
             no_of_submissions_today=user_data.get('no_of_submissions_today', 0)
         )
-        print(user.to_dict())
+        logger.debug(f"Successfully created user object: {user.to_dict()}")
         return user.to_dict(), None, None
     except Exception as e:
         logger.error(f"Error creating user object: {str(e)}")
+        logger.error(f"User data that caused error: {user_data}")
         return None, {'error': 'Failed to create user object'}, 500
 
 def add_meal(user_id, points):

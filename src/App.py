@@ -5,6 +5,12 @@ from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
 from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 # Load environment variables
 load_dotenv()
 
@@ -66,21 +72,33 @@ def login_endpoint():
     email = data.get('email')
     password = data.get('password')
 
+    logger.debug(f"Login attempt for email: {email}")
+
     user_data, error_response, error_code = login_user(email, password)
     if error_response:
+        logger.error(f"Login failed: {error_response}")
         return error_response, error_code
+
+    logger.debug(f"Login successful, user data: {user_data}")
 
     # Get the user's data from Firestore
     user_id = user_data['userId']
+    logger.debug(f"Fetching Firestore data for user_id: {user_id}")
+    
     user_data, error_response, error_code = get_user_data(user_id)
     if error_response:
+        logger.error(f"Failed to get user data: {error_response}")
         return error_response, error_code
+
+    logger.debug(f"Retrieved user data from Firestore: {user_data}")
 
     # Create a proper user object
     user_dict, error_response, error_code = create_user_object(user_id, user_data)
     if error_response:
+        logger.error(f"Failed to create user object: {error_response}")
         return error_response, error_code
 
+    logger.debug(f"Successfully created user object: {user_dict}")
     return jsonify(user_dict)
 
 @app.route('/dashboard', methods=['GET'])
