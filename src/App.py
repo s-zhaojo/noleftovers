@@ -178,33 +178,3 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5002))
     print(f"Starting server on https://noleftovers-backend.onrender.com/")
     app.run(host='0.0.0.0', debug=True, port=port)
-
-"""
-
-Paste this in the body tag at the bottom of the html file before the firebase services uses
-
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyBhf5uVyxDHESysm6u1rfHFmVDBaeoRjB8",
-    authDomain: "noleftovers-fe4a1.firebaseapp.com",
-    projectId: "noleftovers-fe4a1",
-    storageBucket: "noleftovers-fe4a1.firebasestorage.app",
-    messagingSenderId: "681158133625",
-    appId: "1:681158133625:web:05d45feb669ed4dbd6d1a8",
-    measurementId: "G-7QL4Q2TZLB"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-"""
-
