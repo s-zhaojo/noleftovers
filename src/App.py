@@ -5,6 +5,7 @@ from firebase_admin import credentials, auth, firestore
 from models.user import User
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -15,9 +16,10 @@ app = Flask(__name__)
 CORS(app, 
      resources={r"/*": {
          "origins": ["https://noleftovers.vercel.app", "http://localhost:3000"],  # Allow Vercel and local development
-         "methods": ["GET", "POST", "OPTIONS"],
-         "allow_headers": ["Authorization", "Content-Type", "Accept"],
-         "supports_credentials": True
+         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         "allow_headers": ["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+         "supports_credentials": True,
+         "expose_headers": ["Content-Type", "Authorization"]
      }})
 
 # Initialize Firebase Admin
@@ -35,24 +37,87 @@ cred = credentials.Certificate({
 })
 
 firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+def verify_token():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        app.logger.warning('No token provided')
+        return None, jsonify({'error': 'Authorization header missing or invalid'}), 401
+    
+    token = auth_header.split('Bearer ')[1]
+    try:
+        decoded_token = auth.verify_id_token(token)
+        return decoded_token['uid'], None, None
+    except auth.InvalidIdTokenError as e:
+        app.logger.error(f"Invalid token: {str(e)}")
+        return None, jsonify({'error': 'Invalid token'}), 401
+    except Exception as e:
+        app.logger.error(f"Authentication error: {str(e)}")
+        return None, jsonify({'error': 'Authentication failed'}), 401
+
+@app.route('/api/users/<user_id>', methods=['GET'])
+def get_user_data(user_id):
+    user_id, error_response, error_code = verify_token()
+    if error_response:
+        return error_response, error_code
+
+    try:
+        user_doc = db.collection('users').document(user_id).get()
+        
+        if user_doc.exists:
+            app.logger.info(f"User data found for: {user_id}")
+            return jsonify(user_doc.to_dict())
+        else:
+            app.logger.info(f"Creating new user document for: {user_id}")
+            default_user_data = {
+                'email': '',
+                'points': 0,
+                'lunchesBought': 0,
+                'photosSubmitted': 0,
+                'createdAt': datetime.now().isoformat(),
+                'lastUpdated': datetime.now().isoformat()
+            }
+            
+            db.collection('users').document(user_id).set(default_user_data)
+            return jsonify(default_user_data)
+    except Exception as e:
+        app.logger.error(f"Error getting user data: {str(e)}")
+        return jsonify({'error': 'Failed to get user data'}), 500
+
+@app.route('/api/edit-users/<user_id>', methods=['PUT'])
+def update_user_data(user_id):
+    user_id, error_response, error_code = verify_token()
+    if error_response:
+        return error_response, error_code
+
+    try:
+        data = request.get_json()
+        user_ref = db.collection('users').document(user_id)
+        
+        update_data = {
+            **data,
+            'lastUpdated': datetime.now().isoformat()
+        }
+        
+        user_ref.update(update_data)
+        app.logger.info(f"Successfully updated user data for: {user_id}")
+        
+        # Return updated user data
+        updated_doc = user_ref.get()
+        return jsonify(updated_doc.to_dict())
+    except Exception as e:
+        app.logger.error(f"Error updating user data: {str(e)}")
+        return jsonify({'error': 'Failed to update user data'}), 500
 
 @app.route('/verify-token', methods=['POST'])
-def verify_token():
+def verify_token_endpoint():
+    user_id, error_response, error_code = verify_token()
+    if error_response:
+        return error_response, error_code
+
     try:
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
-            app.logger.warning('No token provided')
-            return jsonify({'error': 'Authorization header missing or invalid'}), 401
-        
-        token = auth_header.split('Bearer ')[1]
-        decoded_token = auth.verify_id_token(token)
-        
-        app.logger.info(f"Successfully verified token for user: {decoded_token['uid']}")
-        # Get user data from Firebase
-        user_id = decoded_token['uid']
-        
-        # Get user data from Firestore
-        db = firestore.client()
+        app.logger.info(f"Successfully verified token for user: {user_id}")
         user_doc = db.collection('users').document(user_id).get()
         
         if not user_doc.exists:
@@ -70,15 +135,9 @@ def verify_token():
         )
         
         return user.to_dict()
-
-        
-    except auth.InvalidIdTokenError as e:
-        app.logger.error(f"Invalid token: {str(e)}")
-        return jsonify({'error': 'Invalid token'}), 401
     except Exception as e:
-        app.logger.error(f"Authentication error: {str(e)}")
+        app.logger.error(f"Error in verify-token: {str(e)}")
         return jsonify({'error': 'Authentication failed'}), 401
-
 
 @app.route('/')
 def home():
