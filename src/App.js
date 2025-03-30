@@ -63,30 +63,28 @@ function App() {
         </div>
 
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Login onLogin={handleLogin} />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route 
             path="/add-meal" 
             element={<AddMeal user={user} />} 
           />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route 
             path="/dashboard" 
-            element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} 
+            element={user ? <Dashboard user={user} /> : <Navigate to="/" />} 
           />
           <Route 
             path="/redeem" 
-            element={user ? <Redeem /> : <Navigate to="/login" />} 
+            element={user ? <Redeem /> : <Navigate to="/" />} 
           />
           <Route 
             path="/scan" 
-            element={user ? <Scan user={user} /> : <Navigate to="/login" />} 
+            element={user ? <Scan user={user} /> : <Navigate to="/" />} 
           />
           <Route 
             path="/history" 
-            element={user ? <ViewHistory /> : <Navigate to="/login" />} 
+            element={user ? <ViewHistory /> : <Navigate to="/" />} 
           />
         </Routes>
       </div>
