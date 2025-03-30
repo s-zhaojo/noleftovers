@@ -36,11 +36,11 @@ const Login = ({ onLogin }) => {
 
       // Transform the response data into the expected user object structure
       const userData = {
-        id: data.userId,
-        name: data.name,
-        pts: data.pts,
-        no_lunches_today: data.no_lunches_today,
-        no_of_submissions_today: data.no_of_submissions_today
+        id: data.uuid,
+        name: data.name || email.split('@')[0],
+        pts: data.points || 0,
+        no_lunches_today: data.no_of_lunches_today || 0,
+        no_of_submissions_today: data.no_of_submissions_today || 0
       };
 
       // Store the token (if provided)

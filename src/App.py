@@ -70,7 +70,18 @@ def login_endpoint():
     if error_response:
         return error_response, error_code
 
-    return jsonify(user_data)
+    # Get the user's data from Firestore
+    user_id = user_data['userId']
+    user_data, error_response, error_code = get_user_data(user_id)
+    if error_response:
+        return error_response, error_code
+
+    # Create a proper user object
+    user_dict, error_response, error_code = create_user_object(user_id, user_data)
+    if error_response:
+        return error_response, error_code
+
+    return jsonify(user_dict)
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard_endpoint():
@@ -79,8 +90,12 @@ def dashboard_endpoint():
     user_data, error_response, error_code = get_user_data(user_id)
     if error_response:
         return error_response, error_code
+        
+    user_dict, error_response, error_code = create_user_object(user_id, user_data)
+    if error_response:
+        return error_response, error_code
 
-    return jsonify(user_data)
+    return jsonify(user_dict)
 
 @app.route('/')
 def home():
