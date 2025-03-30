@@ -32,9 +32,12 @@ def initialize_firebase():
             "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_X509_CERT_URL")
         })
         
-        # Initialize the app
-        app = firebase_admin.initialize_app(cred)
-        logger.debug("Firebase app initialized successfully")
+        # Initialize the app with the specific database
+        app = firebase_admin.initialize_app(cred, {
+            'databaseURL': f"https://{os.getenv('FIREBASE_PROJECT_ID')}.firebaseio.com",
+            'database': 'nsd417'
+        })
+        logger.debug("Firebase app initialized successfully with nsd417 database")
 
     # Get Firestore client
     logger.debug("Getting Firestore client...")
@@ -43,12 +46,14 @@ def initialize_firebase():
 
     # Test the connection
     try:
-        # Try to access the root collections
-        collections = db.collections()
-        logger.debug(f"Successfully connected to Firestore. Available collections: {[c.id for c in collections]}")
+        # Try to access the users collection in nsd417 database
+        users_ref = db.collection('users')
+        # Just get the first document to test the connection
+        first_user = users_ref.limit(1).get()
+        logger.debug("Successfully connected to nsd417 database")
         return db
     except Exception as e:
-        logger.error(f"Failed to connect to Firestore: {str(e)}")
+        logger.error(f"Failed to connect to nsd417 database: {str(e)}")
         raise
 
 # Initialize Firebase and get the Firestore client
