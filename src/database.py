@@ -1,8 +1,10 @@
 from firebase_admin import firestore
 from models.User import User
+from models.Admin import Admin
 from datetime import datetime
 import logging
 from firebase_init import db
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -137,4 +139,93 @@ def get_meals_by_date(user_id, date):
         return meals_list, None, None
     except Exception as e:
         logger.error(f"Error getting meals by date: {str(e)}")
-        return None, {'error': 'Failed to get meals by date'}, 500 
+        return None, {'error': 'Failed to get meals by date'}, 500
+
+def get_admin_data():
+    """Get admin data from Firestore"""
+    try:
+        logger.debug("Attempting to get admin data")
+        admin_doc = db.collection('admin').document('settings').get()
+        
+        if admin_doc.exists:
+            logger.debug("Admin data found")
+            admin_data = admin_doc.to_dict()
+            logger.debug(f"Admin data: {admin_data}")
+            return admin_data, None, None
+        else:
+            logger.debug("No admin data found, creating default settings")
+            default_admin_data = {
+                'lunch_tray_height': 0,
+                'lunch_tray_length': 0
+            }
+            db.collection('admin').document('settings').set(default_admin_data)
+            return default_admin_data, None, None
+    except Exception as e:
+        logger.error(f"Error getting admin data: {str(e)}")
+        return None, {'error': 'Failed to get admin data'}, 500
+
+def update_admin_data(lunch_tray_height, lunch_tray_length):
+    """Update admin settings in Firestore"""
+    try:
+        logger.debug(f"Updating admin settings: height={lunch_tray_height}, length={lunch_tray_length}")
+        admin_ref = db.collection('admin').document('settings')
+        
+        admin_ref.update({
+            'lunch_tray_height': lunch_tray_height,
+            'lunch_tray_length': lunch_tray_length
+        })
+        
+        logger.debug("Admin settings updated successfully")
+        return {'success': True}, None, None
+    except Exception as e:
+        logger.error(f"Error updating admin data: {str(e)}")
+        return None, {'error': 'Failed to update admin data'}, 500
+
+def get_all_users():
+    """Get all users from Firestore"""
+    try:
+        logger.debug("Attempting to get all users")
+        users_ref = db.collection('users')
+        users = users_ref.get()
+        
+        users_list = []
+        for user in users:
+            user_data = user.to_dict()
+            user_data['id'] = user.id
+            users_list.append(user_data)
+            
+        logger.debug(f"Successfully retrieved {len(users_list)} users")
+        return users_list, None, None
+    except Exception as e:
+        logger.error(f"Error getting all users: {str(e)}")
+        return None, {'error': 'Failed to get users'}, 500
+
+def generate_qr_code(user_id):
+    """Generate QR code for a user using api.qrserver.com"""
+    try:
+        logger.debug(f"Generating QR code for user_id: {user_id}")
+        
+        # Create the URL that will be encoded in the QR code
+        # This should be the URL where users can redeem their points
+        redeem_url = f"https://noleftovers-rho.vercel.app/redeem/{user_id}"
+        
+        # Call the QR code API
+        qr_api_url = "https://api.qrserver.com/v1/create-qr-code/"
+        params = {
+            'size': '200x200',  # QR code size
+            'data': redeem_url,  # URL to encode
+            'format': 'png'     # Output format
+        }
+        
+        response = requests.get(qr_api_url, params=params)
+        
+        if response.status_code == 200:
+            logger.debug("QR code generated successfully")
+            return response.content, None, None
+        else:
+            logger.error(f"Failed to generate QR code: {response.status_code}")
+            return None, {'error': 'Failed to generate QR code'}, 500
+            
+    except Exception as e:
+        logger.error(f"Error generating QR code: {str(e)}")
+        return None, {'error': 'Failed to generate QR code'}, 500 

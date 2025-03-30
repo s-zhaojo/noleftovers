@@ -1,11 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
 from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
-from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date
+from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date, get_admin_data, update_admin_data, get_all_users, generate_qr_code
 import logging
+from io import BytesIO
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -114,6 +115,60 @@ def dashboard_endpoint():
         return error_response, error_code
 
     return jsonify(user_dict)
+
+@app.route('/admin/users', methods=['GET'])
+def get_users_endpoint():
+    """Get all users (admin only)"""
+    # Verify admin token
+    user_id, error_response, error_code = verify_token(request)
+    if error_response:
+        return error_response, error_code
+        
+    # Get user data to check if admin
+    user_data, error_response, error_code = get_user_data(user_id)
+    if error_response:
+        return error_response, error_code
+        
+    # Check if user is admin (you'll need to add an is_admin field to your user documents)
+    if not user_data.get('is_admin', False):
+        return jsonify({'error': 'Unauthorized - Admin access required'}), 403
+        
+    # Get all users
+    users, error_response, error_code = get_all_users()
+    if error_response:
+        return error_response, error_code
+        
+    return jsonify(users)
+
+@app.route('/qr-code/<user_id>', methods=['GET'])
+def get_qr_code_endpoint(user_id):
+    """Get QR code for a user"""
+    # Verify token
+    requesting_user_id, error_response, error_code = verify_token(request)
+    if error_response:
+        return error_response, error_code
+        
+    # Get user data to check if admin or requesting their own QR code
+    user_data, error_response, error_code = get_user_data(requesting_user_id)
+    if error_response:
+        return error_response, error_code
+        
+    # Allow access if user is admin or requesting their own QR code
+    if not user_data.get('is_admin', False) and requesting_user_id != user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    # Generate QR code
+    qr_code, error_response, error_code = generate_qr_code(user_id)
+    if error_response:
+        return error_response, error_code
+        
+    # Return QR code as PNG image
+    return send_file(
+        BytesIO(qr_code),
+        mimetype='image/png',
+        as_attachment=True,
+        download_name=f'qr_code_{user_id}.png'
+    )
 
 @app.route('/')
 def home():
