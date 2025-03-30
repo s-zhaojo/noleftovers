@@ -203,10 +203,12 @@ def admin_login_endpoint():
 def analyze_food_endpoint():
     """Analyze food image using ML model"""
     if 'image' not in request.files:
+        logger.error("No image file in request")
         return jsonify({'error': 'No image provided'}), 400
         
     file = request.files['image']
     if file.filename == '':
+        logger.error("Empty filename in request")
         return jsonify({'error': 'No selected file'}), 400
         
     if file and allowed_file(file.filename):
@@ -215,28 +217,39 @@ def analyze_food_endpoint():
             image_bytes = file.read()
             image = Image.open(io.BytesIO(image_bytes))
             
+            logger.debug(f"Processing image: {file.filename}")
+            
             # Run ML model detection
             volume = run_detection(image)
+            logger.debug(f"Detected food volume: {volume}")
             
             # Calculate points based on volume
             if volume == 0:
                 points = 50
+                message = "Empty plate - Great job!"
             elif volume < 0.3:
                 points = -10
+                message = "Little food left"
             elif volume < 0.6:
                 points = -25
+                message = "Moderate amount of food left"
             else:
                 points = -40
+                message = "Large amount of food left"
                 
+            logger.debug(f"Calculated points: {points}")
+            
             return jsonify({
                 'volume': volume,
-                'points': points
+                'points': points,
+                'message': message
             })
             
         except Exception as e:
             logger.error(f"Error analyzing image: {str(e)}")
             return jsonify({'error': 'Failed to analyze image'}), 500
             
+    logger.error(f"Invalid file type: {file.filename}")
     return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/')

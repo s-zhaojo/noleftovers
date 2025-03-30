@@ -56,13 +56,13 @@ const Scan = () => {
       }
 
       const data = await response.json();
-      const calculatedPoints = calculatePoints(data.volume);
-      setPoints(calculatedPoints);
+      setPoints(data.points);
 
       // Store the result in localStorage for the redeem page
       localStorage.setItem('scanResult', JSON.stringify({
-        points: calculatedPoints,
+        points: data.points,
         volume: data.volume,
+        message: data.message,
         timestamp: new Date().toISOString()
       }));
 
@@ -125,9 +125,7 @@ const Scan = () => {
           <h3>Analysis Result</h3>
           <p>Points: {points}</p>
           <p className="points-explanation">
-            {points > 0 
-              ? 'Great job! You finished all your food!'
-              : 'There is still some food left on your plate.'}
+            {JSON.parse(localStorage.getItem('scanResult')).message}
           </p>
         </div>
       )}
