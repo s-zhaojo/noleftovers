@@ -2,34 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
-const Dashboard = () => {
-  const [user, setUser] = useState({
-    pts: 0,
-    name: 'User'
+const Dashboard = ({ user }) => {
+  const [points, setPoints] = useState(() => {
+    // Try getting the points from localStorage first
+    const savedPoints = localStorage.getItem('points');
+    return savedPoints ? parseInt(savedPoints, 10) : user.pts || 0;
   });
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch user data on component mount
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('https://noleftovers-backend.onrender.com/get-user', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
-        });
-        const data = await response.json();
-        if (data.success) {
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+    // Save points to localStorage whenever it changes
+    localStorage.setItem('points', points);
+  }, [points]);
 
   return (
     <div className="dashboard-container">
@@ -41,7 +25,7 @@ const Dashboard = () => {
       <div className="dashboard-stats">
         <div className="stat-card">
           <h3>Total Points</h3>
-          <div className="stat-value">{user.pts || 0}</div>
+          <div className="stat-value">{points}</div>
         </div>
         <div className="stat-card">
           <h3>Lunches Bought Today</h3>
@@ -58,13 +42,10 @@ const Dashboard = () => {
           Redeem Points
         </button>
         <button className="action-button" onClick={() => navigate('/scan')}>
-          Scan QR Code
+          Scan 
         </button>
         <button className="action-button" onClick={() => navigate('/history')}>
           View History
-        </button>
-        <button className="action-button" onClick={() => navigate('/add-meal', { state: { setPoints } })}>
-          Add Meal
         </button>
       </div>
     </div>
