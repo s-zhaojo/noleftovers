@@ -51,11 +51,11 @@ const Login = ({ onLogin }) => {
       
       // Call the onLogin callback with user data
       console.log('Calling onLogin with user data:', userData);
-      await onLogin(userData);
+      onLogin(userData);
       
       // Navigate to dashboard after successful login
       console.log('Navigating to dashboard...');
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'Login failed. Please try again.');
@@ -86,7 +86,7 @@ const Login = ({ onLogin }) => {
               required
             />
           </div>
-          <button type="submit">Login</button>
+          <button type="submit" className="login-button">Login</button>
         </form>
       </div>
     </div>

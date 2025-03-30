@@ -1,13 +1,21 @@
 .scan-container {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 20px;
   text-align: center;
 }
 
 .scan-container h2 {
   color: #333;
   margin-bottom: 2rem;
+}
+
+.scan-content {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
 }
 
 .upload-section {
@@ -84,11 +92,11 @@
 }
 
 .error-message {
-  color: #f44336;
-  margin: 1rem 0;
-  padding: 1rem;
-  background-color: #ffebee;
+  color: #dc3545;
+  background-color: #f8d7da;
+  padding: 10px;
   border-radius: 5px;
+  margin: 10px 0;
 }
 
 .result-section {
@@ -122,4 +130,76 @@
 
 .back-button:hover {
   background: #45a049;
+}
+
+.points-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.submit-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.success-message {
+  color: #28a745;
+  background-color: #d4edda;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+.nav-button {
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.nav-button:hover {
+  background-color: #5a6268;
 } 

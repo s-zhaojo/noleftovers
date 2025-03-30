@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 import logging
+from google.cloud import firestore
 
 # Local imports
 from auth import verify_token, login_user
@@ -121,6 +122,44 @@ def dashboard_endpoint():
         return error_response, error_code
 
     return jsonify(user_dict)
+
+@app.route('/update-points', methods=['POST'])
+def update_points():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        points = data.get('points')
+        password = data.get('password')
+
+        if not all([user_id, points, password]):
+            return jsonify({'message': 'Missing required fields'}), 400
+
+        # Verify teacher password
+        if password != 'nsd417':
+            return jsonify({'message': 'Invalid teacher password'}), 401
+
+        # Update user points in database
+        user_ref = firestore.Client().collection('users').document(user_id)
+        user_doc = user_ref.get()
+
+        if not user_doc.exists:
+            return jsonify({'message': 'User not found'}), 404
+
+        current_points = user_doc.get('points', 0)
+        new_points = current_points + points
+
+        user_ref.update({
+            'points': new_points
+        })
+
+        return jsonify({
+            'message': 'Points updated successfully',
+            'new_points': new_points
+        }), 200
+
+    except Exception as e:
+        print(f"Error updating points: {str(e)}")
+        return jsonify({'message': 'Internal server error'}), 500
 
 @app.route('/')
 def home():

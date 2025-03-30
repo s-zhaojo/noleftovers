@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Redeem.css';
 
-const Redeem = () => {
+const Redeem = ({ user }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { setPoints } = location.state || {};  // Access setPoints passed from Dashboard
-  const user = JSON.parse(localStorage.getItem('user'));
   
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate('/');
       return;
     }
 
@@ -58,7 +57,7 @@ const Redeem = () => {
   };
 
   const handleViewHistory = () => {
-    navigate('/view-history');
+    navigate('/history');
   };
 
   return (
@@ -82,6 +81,9 @@ const Redeem = () => {
         </button>
         <button onClick={handleViewHistory} className="history-button">
           View History
+        </button>
+        <button onClick={() => navigate('/dashboard')} className="nav-button">
+          Back to Dashboard
         </button>
       </div>
     </div>

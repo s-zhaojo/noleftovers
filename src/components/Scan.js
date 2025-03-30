@@ -1,148 +1,98 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Scan.css';
 
-const Scan = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+const Scan = ({ user }) => {
+  const [points, setPoints] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [points, setPoints] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image size should be less than 5MB');
-        return;
-      }
-      
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please upload a valid image file');
-        return;
-      }
-
-      setSelectedImage(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setError('');
-      setPoints(null);
-    }
-  };
-
-  const calculatePoints = (volume) => {
-    // Points calculation logic:
-    // - If volume is 0 (empty plate): +50 points
-    // - If volume is low (little food): -10 points
-    // - If volume is medium (some food): -25 points
-    // - If volume is high (lots of food): -40 points
-    if (volume === 0) return 50;
-    if (volume < 0.3) return -10;
-    if (volume < 0.6) return -25;
-    return -40;
-  };
-
-  const handleAnalyze = async () => {
-    if (!selectedImage) {
-      setError('Please select an image first');
-      return;
-    }
-
-    setIsAnalyzing(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError('');
+    setSuccess('');
+    setIsLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('image', selectedImage);
-
-      // Send image to ML model endpoint
-      const response = await fetch('https://noleftovers-backend.onrender.com/analyze-food', {
+      const response = await fetch('https://noleftovers-backend.onrender.com/update-points', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          points: parseInt(points),
+          password: password
+        })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze image');
+        throw new Error(data.message || 'Failed to update points');
       }
 
-      setPoints(data.points);
-
-      // Store the result in localStorage for the redeem page
-      localStorage.setItem('scanResult', JSON.stringify({
-        points: data.points,
-        volume: data.volume,
-        message: data.message,
-        timestamp: new Date().toISOString()
-      }));
-
-    } catch (error) {
-      console.error('Analysis error:', error);
-      setError(error.message || 'Failed to analyze image. Please try again.');
-      setPoints(null);
+      setSuccess('Points updated successfully!');
+      setPoints('');
+      setPassword('');
+      
+      // Update local storage points
+      const currentPoints = parseInt(localStorage.getItem('points'), 10) || 0;
+      localStorage.setItem('points', currentPoints + parseInt(points));
+      
+    } catch (err) {
+      console.error('Error updating points:', err);
+      setError(err.message || 'Failed to update points. Please try again.');
     } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleRedeem = () => {
-    if (points !== null) {
-      navigate('/redeem');
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="scan-container">
-      <h2>Scan Your Plate</h2>
-      <div className="upload-section">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="file-input"
-          id="image-upload"
-        />
-        <label htmlFor="image-upload" className="upload-button">
-          Choose Image
-        </label>
-      </div>
-
-      {previewUrl && (
-        <div className="preview-section">
-          <img src={previewUrl} alt="Preview" className="preview-image" />
-        </div>
-      )}
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="action-buttons">
-        <button
-          onClick={handleAnalyze}
-          disabled={!selectedImage || isAnalyzing}
-          className="analyze-button"
-        >
-          {isAnalyzing ? 'Analyzing...' : 'Analyze Plate'}
-        </button>
-
-        {points !== null && (
-          <button onClick={handleRedeem} className="redeem-button">
-            Redeem Points ({points})
+      <h2>Award Points</h2>
+      <div className="scan-content">
+        <form onSubmit={handleSubmit} className="points-form">
+          <div className="form-group">
+            <label>Number of Points:</label>
+            <input
+              type="number"
+              value={points}
+              onChange={(e) => setPoints(e.target.value)}
+              required
+              min="0"
+              placeholder="Enter points to award"
+            />
+          </div>
+          <div className="form-group">
+            <label>Teacher Password:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter teacher password"
+            />
+          </div>
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
+          <button 
+            type="submit" 
+            className="submit-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Updating...' : 'Award Points'}
           </button>
-        )}
-      </div>
-
-      {points !== null && (
-        <div className="result-section">
-          <h3>Analysis Result</h3>
-          <p>Points: {points}</p>
-          <p className="points-explanation">
-            {JSON.parse(localStorage.getItem('scanResult')).message}
-          </p>
+        </form>
+        <div className="button-container">
+          <button onClick={() => navigate('/dashboard')} className="nav-button">
+            Back to Dashboard
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };

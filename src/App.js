@@ -72,7 +72,7 @@ function App() {
           />
           <Route 
             path="/redeem" 
-            element={user ? <Redeem /> : <Navigate to="/" />} 
+            element={user ? <Redeem user={user} /> : <Navigate to="/" />} 
           />
           <Route 
             path="/scan" 
@@ -80,7 +80,7 @@ function App() {
           />
           <Route 
             path="/history" 
-            element={user ? <ViewHistory /> : <Navigate to="/" />} 
+            element={user ? <ViewHistory user={user} /> : <Navigate to="/" />} 
           />
         </Routes>
       </div>
