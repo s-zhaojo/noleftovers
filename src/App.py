@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 import logging
 from io import BytesIO
 from werkzeug.utils import secure_filename
-from PIL import Image
-import io
 import numpy as np
 import cv2
 
@@ -56,14 +54,15 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def calculate_food_volume(image):
-    """Calculate food volume from image"""
+def calculate_food_volume(image_bytes):
+    """Calculate food volume from image using OpenCV"""
     try:
-        # Convert PIL Image to numpy array
-        img = np.array(image)
+        # Convert bytes to numpy array
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
         # Convert to grayscale
-        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
         # Apply threshold to get binary image
         _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
@@ -249,18 +248,13 @@ def analyze_food_endpoint():
         
     if file and allowed_file(file.filename):
         try:
-            # Read the image
+            # Read the image bytes
             image_bytes = file.read()
-            image = Image.open(io.BytesIO(image_bytes))
             
-            # Convert to RGB if needed
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            
-            logger.debug(f"Processing image: {file.filename}, size: {image.size}, mode: {image.mode}")
+            logger.debug(f"Processing image: {file.filename}")
             
             # Calculate food volume
-            volume = calculate_food_volume(image)
+            volume = calculate_food_volume(image_bytes)
             logger.debug(f"Detected food volume: {volume}")
             
             # Calculate points based on volume
