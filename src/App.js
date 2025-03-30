@@ -1,16 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import './App.css';
 
-// Dummy Dashboard Component for demonstration
-const Dashboard = () => {
-  return <div>Welcome to the Dashboard!</div>;
-};
-
 function App() {
-  const location = useLocation(); // Get current path
-
   return (
     <Router>
       <div className="App">
@@ -23,35 +16,32 @@ function App() {
           <h1 className="title">No Leftovers</h1>
         </div>
         
-        {/* Routes for Login and Dashboard */}
+        
+
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} /> {/* Add a Dashboard route */}
         </Routes>
-
-        {/* Conditionally render Profile card only on /dashboard */}
-        {location.pathname === '/dashboard' && (
-          <div className="profile-card">
-            <img 
-              src="https://t3.ftcdn.net/jpg/00/77/71/12/360_F_77711294_BA5QTjtgGPmLKCXGdtbAgZciL4kEwCnx.jpg" 
-              alt="John" 
-              className="profile-img"
-            />
-            <h1>John Doe</h1>
-            <p className="title">1766546</p>
-            <p>Points: 400</p>
-            <p>Number of times bought lunch: 14</p>
-            <p>Number of times submitted photo: 14</p>
-            <div className="social-links">
-              <a href="#"><i className="fa fa-dribbble"></i></a>
-              <a href="#"><i className="fa fa-twitter"></i></a>
-              <a href="#"><i className="fa fa-linkedin"></i></a>
-              <a href="#"><i className="fa fa-facebook"></i></a>
-            </div>
-            <p><button>Contact</button></p>
+        {/* Profile in the top right */}
+        <div className="profile-card">
+          <img 
+            src="https://t3.ftcdn.net/jpg/00/77/71/12/360_F_77711294_BA5QTjtgGPmLKCXGdtbAgZciL4kEwCnx.jpg" 
+            alt="John" 
+            className="profile-img"
+          />
+          <h1>John Doe</h1>
+          <p className="title">1766546</p>
+          <p>Points: 400</p>
+          <p>Number of times bought lunch: 14</p>
+          <p>Number of times submitted photo: 14</p>
+          <div className="social-links">
+            <a href="#"><i className="fa fa-dribbble"></i></a>
+            <a href="#"><i className="fa fa-twitter"></i></a>
+            <a href="#"><i className="fa fa-linkedin"></i></a>
+            <a href="#"><i className="fa fa-facebook"></i></a>
           </div>
-        )}
+          <p><button>Contact</button></p>
+        </div>
       </div>
     </Router>
   );
