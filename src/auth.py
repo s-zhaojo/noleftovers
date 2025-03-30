@@ -36,9 +36,6 @@ def login_user(email, password):
         # Return user data
         return {
             'userId': user.uid,
-            'email': user.email,
-            'name': user.display_name or '',
-            'photoURL': user.photo_url or ''
         }, None, None
 
     except auth.UserNotFoundError:

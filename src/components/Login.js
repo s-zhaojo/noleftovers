@@ -36,13 +36,11 @@ const Login = ({ onLogin }) => {
 
       // Transform the response data into the expected user object structure
       const userData = {
-        email: data.email,
-        name: data.name || email.split('@')[0], // Use email username if name is empty
-        photoURL: data.photoURL || '',
-        userId: data.userId,
-        points: 0,
-        lunchesBought: 0,
-        photosSubmitted: 0
+        id: data.userId,
+        name: data.name,
+        pts: data.pts,
+        no_lunches_today: data.no_lunches_today,
+        no_of_submissions_today: data.no_of_submissions_today
       };
 
       // Store the token (if provided)
