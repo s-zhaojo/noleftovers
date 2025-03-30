@@ -145,7 +145,9 @@ def update_points():
         if not user_doc.exists:
             return jsonify({'message': 'User not found'}), 404
 
-        current_points = user_doc.get('points', 0)
+        # Get current points from the document data
+        user_data = user_doc.to_dict()
+        current_points = user_data.get('points', 0)
         new_points = current_points + points
 
         user_ref.update({
