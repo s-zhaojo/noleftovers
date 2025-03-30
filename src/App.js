@@ -2,24 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import './App.css';
 
-// Login Component (Simple Example)
+// Login Component
 const Login = ({ onLogin }) => {
-  const handleLogin = () => {
-    const userData = {
-      name: 'John Doe',
-      id: '1766546',
-      points: 400,
-      lunchCount: 14,
-      photoCount: 14
-    };
-    // Simulate login and store user data in the app state
-    onLogin(userData);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await fetch('https://noleftovers-backend.onrender.com/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+        mode: 'cors',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Store the token
+      localStorage.setItem('token', data.token);
+      
+      // Call the onLogin callback with user data
+      onLogin(data.user);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
-      <button onClick={handleLogin}>Login as John Doe</button>
+      <div className="login-box">
+        <h2>Welcome Back</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Enter your email"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter your password"
+            />
+          </div>
+          {error && <div className="error-message">{error}</div>}
+          <button type="submit" className="login-button">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
