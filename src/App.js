@@ -76,10 +76,7 @@ function App() {
             path="/scan" 
             element={user ? <Scan user={user} /> : <Navigate to="/login" />} 
           />
-          <Route 
-            path="/add-meal" 
-            element={user ? <AddMeal user={user} /> : <Navigate to="/login" />} 
-          />
+
           <Route 
             path="/history" 
             element={user ? <ViewHistory /> : <Navigate to="/login" />} 
