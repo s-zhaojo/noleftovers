@@ -15,8 +15,10 @@ const firebaseConfig = {
   measurementId: "G-7QL4Q2TZLB"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase with only auth
+const app = initializeApp(firebaseConfig, {
+  auth: true
+});
 const auth = getAuth(app);
 
 // Log environment variables
