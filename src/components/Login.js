@@ -1,31 +1,6 @@
 import React, { useState } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBhf5uVyxDHESysm6u1rfHFmVDBaeoRjB8",
-  authDomain: "noleftovers-fe4a1.firebaseapp.com",
-  projectId: "noleftovers-fe4a1",
-  storageBucket: "noleftovers-fe4a1.firebasestorage.app",
-  messagingSenderId: "681158133625",
-  appId: "1:681158133625:web:05d45feb669ed4dbd6d1a8",
-  measurementId: "G-7QL4Q2TZLB"
-};
-
-// Initialize Firebase with only auth
-const app = initializeApp(firebaseConfig, {
-  auth: true
-});
-const auth = getAuth(app);
-
-// Log environment variables
-console.log('Environment variables:', {
-  REACT_APP_BACKEND_URL: process.env.REACT_APP_BACKEND_URL,
-  NODE_ENV: process.env.NODE_ENV
-});
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -36,50 +11,34 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    
-    try {
-      // First authenticate with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-      console.log('Firebase auth successful, got token');
-      
-      // Get backend URL from environment variable
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
-      if (!backendUrl) {
-        throw new Error('Backend URL not configured');
-      }
 
-      // Verify token with backend
-      const verifyResponse = await fetch(`${backendUrl}/verify-token`, {
+    try {
+      // Call the backend login endpoint
+      const response = await fetch('https://noleftovers-backend.onrender.com/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include'
       });
 
-      if (!verifyResponse.ok) {
-        throw new Error('Token verification failed');
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Login failed');
       }
 
-      const data = await verifyResponse.json();
-      console.log('Login successful:', data);
+      const data = await response.json();
       
       // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify(data));
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('userEmail', data.email);
       
       // Navigate to dashboard
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setError('Invalid email or password');
-      } else if (error.message === 'Failed to fetch') {
-        setError('Unable to connect to server. Please check your internet connection.');
-      } else {
-        setError(error.message || 'An error occurred during login');
-      }
+      setError(error.message || 'Invalid email or password');
     }
   };
 
@@ -87,11 +46,12 @@ function Login() {
     <div className="login-container">
       <form onSubmit={handleLogin} className="login-form">
         <h2>Login</h2>
-        {error && <p className="error">{error}</p>}
+        {error && <div className="error-message">{error}</div>}
         <div className="form-group">
-          <label>Email:</label>
+          <label htmlFor="email">Email</label>
           <input
             type="email"
+            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -99,9 +59,10 @@ function Login() {
           />
         </div>
         <div className="form-group">
-          <label>Password:</label>
+          <label htmlFor="password">Password</label>
           <input
             type="password"
+            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
