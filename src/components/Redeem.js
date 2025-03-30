@@ -6,6 +6,7 @@ const Redeem = ({ user }) => {
   const [error, setError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedReward, setSelectedReward] = useState(null);
+  const [userPoints, setUserPoints] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { setPoints } = location.state || {};
@@ -30,6 +31,8 @@ const Redeem = ({ user }) => {
       navigate('/');
       return;
     }
+    // Set user points from the user object
+    setUserPoints(user.points || 0);
   }, [user, navigate]);
 
   const handleRedeem = async (reward) => {
@@ -50,11 +53,12 @@ const Redeem = ({ user }) => {
       }
 
       // Update local points
+      const newPoints = userPoints - reward.points;
+      setUserPoints(newPoints);
       if (setPoints) {
-        setPoints(prev => prev - reward.points);
+        setPoints(newPoints);
       } else {
-        const currentPoints = parseInt(localStorage.getItem('points'), 10) || 0;
-        localStorage.setItem('points', currentPoints - reward.points);
+        localStorage.setItem('points', newPoints);
       }
 
       // Show success message and redirect
@@ -90,15 +94,15 @@ const Redeem = ({ user }) => {
         {rewards.map(reward => (
           <div 
             key={reward.id} 
-            className={`reward-card ${user.points < reward.points ? 'disabled' : ''}`}
-            onClick={() => user.points >= reward.points && handleRewardClick(reward)}
+            className={`reward-card ${userPoints < reward.points ? 'disabled' : ''}`}
+            onClick={() => userPoints >= reward.points && handleRewardClick(reward)}
           >
             <h3>{reward.name}</h3>
             <p className="points-required">{reward.points} points</p>
             <p className="description">{reward.description}</p>
-            {user.points < reward.points && (
+            {userPoints < reward.points && (
               <p className="insufficient-points">
-                Need {reward.points - user.points} more points
+                Need {reward.points - userPoints} more points
               </p>
             )}
           </div>

@@ -147,12 +147,15 @@ def update_points():
 
         # Get current points from the document data
         user_data = user_doc.to_dict()
-        current_points = user_data.get('points', 0)
+        current_points = user_data.get('pts', 0)
         new_points = current_points + points
 
+        # Update the points field
         user_ref.update({
-            'points': new_points
+            'pts': new_points
         })
+
+        print(f"Updated points for user {user_id}: {current_points} + {points} = {new_points}")
 
         return jsonify({
             'message': 'Points updated successfully',
@@ -161,7 +164,7 @@ def update_points():
 
     except Exception as e:
         print(f"Error updating points: {str(e)}")
-        return jsonify({'message': 'Internal server error'}), 500
+        return jsonify({'message': f'Internal server error: {str(e)}'}), 500
 
 @app.route('/redeem-points', methods=['POST'])
 def redeem_points():

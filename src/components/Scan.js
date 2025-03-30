@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Scan.css';
 
 const Scan = ({ user }) => {
@@ -9,6 +9,8 @@ const Scan = ({ user }) => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setPoints: setParentPoints } = location.state || {};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,9 +41,13 @@ const Scan = ({ user }) => {
       setPoints('');
       setPassword('');
       
-      // Update local storage points
-      const currentPoints = parseInt(localStorage.getItem('points'), 10) || 0;
-      localStorage.setItem('points', currentPoints + parseInt(points));
+      // Update points in parent component if available
+      if (setParentPoints) {
+        setParentPoints(data.new_points);
+      } else {
+        // Update localStorage if parent component is not available
+        localStorage.setItem('points', data.new_points);
+      }
       
     } catch (err) {
       console.error('Error updating points:', err);
