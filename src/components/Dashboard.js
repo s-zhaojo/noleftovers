@@ -15,15 +15,15 @@ const Dashboard = ({ user }) => {
       <div className="dashboard-stats">
         <div className="stat-card">
           <h3>Total Points</h3>
-          <div className="stat-value">{user.points || 0}</div>
+          <div className="stat-value">{user.pts || 0}</div>
         </div>
         <div className="stat-card">
           <h3>Lunches Bought Today</h3>
-          <div className="stat-value">{user.lunchesBought || 0}</div>
+          <div className="stat-value">{user.no_lunches_today || 0}</div>
         </div>
         <div className="stat-card">
           <h3>Photos Submitted Today</h3>
-          <div className="stat-value">{user.photosSubmitted || 0}</div>
+          <div className="stat-value">{user.no_of_submissions_today || 0}</div>
         </div>
       </div>
 

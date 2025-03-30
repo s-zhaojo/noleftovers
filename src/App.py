@@ -5,7 +5,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
 from database import get_user_data, update_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date
-from firebase_admin import firestore
 # Load environment variables
 load_dotenv()
 
@@ -61,6 +60,16 @@ def login_endpoint():
     password = data.get('password')
 
     user_data, error_response, error_code = login_user(email, password)
+    if error_response:
+        return error_response, error_code
+
+    return jsonify(user_data)
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard_endpoint():
+    user_id = request.args.get('user_id')
+
+    user_data, error_response, error_code = get_user_data(user_id)
     if error_response:
         return error_response, error_code
 
