@@ -62,6 +62,7 @@ def create_user_object(user_id, user_data):
             no_of_lunches_today=user_data.get('no_lunches_today', 0),
             no_of_submissions_today=user_data.get('no_of_submissions_today', 0)
         )
+        print(user.to_dict())
         return user.to_dict(), None, None
     except Exception as e:
         logger.error(f"Error creating user object: {str(e)}")
