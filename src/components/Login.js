@@ -64,25 +64,8 @@ function Login() {
       const data = await verifyResponse.json();
       console.log('Login successful:', data);
       
-      // Get user data from backend
-      const userResponse = await fetch(`${backendUrl}/api/users/${data.uid}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!userResponse.ok) {
-        throw new Error('Failed to get user data');
-      }
-
-      const userData = await userResponse.json();
-      
       // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify({
-        ...data,
-        ...userData
-      }));
+      localStorage.setItem('user', JSON.stringify(data));
       
       // Navigate to dashboard
       navigate('/dashboard');
