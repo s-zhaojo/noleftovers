@@ -30,6 +30,8 @@ def login_user(email, password):
 
         # Get user by email
         user = auth.get_user_by_email(email)
+
+        print(user.uid)
         
         # Return user data
         return {
