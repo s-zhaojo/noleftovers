@@ -2,8 +2,8 @@ services:
   - type: web
     name: noleftovers-backend
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: cd src && gunicorn App:app
+    buildCommand: pip install -r src/requirements.txt
+    startCommand: gunicorn src.App:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
