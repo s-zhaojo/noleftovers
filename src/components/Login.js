@@ -88,12 +88,6 @@ const Login = ({ onLogin }) => {
           </div>
           <button type="submit">Login</button>
         </form>
-        <div className="admin-login-link">
-          <p>Are you an admin?</p>
-          <button onClick={() => navigate('/admin/login')} className="admin-button">
-            Login as Admin
-          </button>
-        </div>
       </div>
     </div>
   );
