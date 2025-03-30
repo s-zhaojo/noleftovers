@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 import './App.css';
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+  };
+
   return (
     <Router>
       <div className="App">
@@ -19,8 +26,12 @@ function App() {
         
 
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route 
+            path="/dashboard" 
+            element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} 
+          />
+          <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
         {/* Profile in the top right */}
         <div className="profile-card">
@@ -35,10 +46,10 @@ function App() {
           <p>Number of times bought lunch: 14</p>
           <p>Number of times submitted photo: 14</p>
           <div className="social-links">
-            <a href="#"><i className="fa fa-dribbble"></i></a>
-            <a href="#"><i className="fa fa-twitter"></i></a>
-            <a href="#"><i className="fa fa-linkedin"></i></a>
-            <a href="#"><i className="fa fa-facebook"></i></a>
+            <button className="social-button"><i className="fa fa-dribbble"></i></button>
+            <button className="social-button"><i className="fa fa-twitter"></i></button>
+            <button className="social-button"><i className="fa fa-linkedin"></i></button>
+            <button className="social-button"><i className="fa fa-facebook"></i></button>
           </div>
           <p><button>Contact</button></p>
         </div>
