@@ -32,10 +32,7 @@ try:
     app = firebase_admin.get_app()
     logger.debug("Firebase app already initialized")
 except ValueError:
-    app = firebase_admin.initialize_app(cred, {
-        'databaseURL': f"https://{os.getenv('FIREBASE_PROJECT_ID')}.firebaseio.com",
-        'database': 'nsd417'
-    })
+    app = firebase_admin.initialize_app(cred)
     logger.debug("Firebase app initialized successfully")
 
 logger.debug("Initializing Firestore client...")
