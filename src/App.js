@@ -1,29 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Login';
 import './App.css';
 
 function App() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log('Login', username, password);
-  };
-
   return (
     <Router>
       <div className="App">
-        <div className="header">
+        <div className="title-container">
           <img 
             src="https://no-leftovers.com/assets/logos/NLO-Main-Logo-300.png" 
             alt="No Leftovers Logo" 
-            className="logo" 
+            className="title-image" 
           />
           <h1 className="title">No Leftovers</h1>
         </div>
-
+        
         {/* Profile in the top right */}
         <div className="profile-card">
           <img 
@@ -32,42 +24,22 @@ function App() {
             className="profile-img"
           />
           <h1>John Doe</h1>
-          <p className="title">CEO & Founder, Example</p>
-          <p>Harvard University</p>
+          <p className="title">1766546</p>
+          <p>Points: 400</p>
+          <p>Number of times bought lunch: 14</p>
+          <p>Number of times submitted photo: 14</p>
           <div className="social-links">
             <a href="#"><i className="fa fa-dribbble"></i></a>
             <a href="#"><i className="fa fa-twitter"></i></a>
             <a href="#"><i className="fa fa-linkedin"></i></a>
             <a href="#"><i className="fa fa-facebook"></i></a>
           </div>
-        </div>
-
-        <div className="login-container">
-          <form onSubmit={handleLogin} className="login-form">
-            <h2>Sign In</h2>
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button type="submit" className="login-button">Log In</button>
-            <div className="signup-link">
-              <p>Don't have an account? <a href="#">Sign Up</a></p>
-            </div>
-          </form>
+          <p><button>Contact</button></p>
         </div>
 
         <Routes>
-          {/* Add routes for login or other pages here */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     </Router>
