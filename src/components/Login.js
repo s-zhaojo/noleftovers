@@ -65,33 +65,35 @@ const Login = ({ onLogin }) => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2>Welcome Back</h2>
+        <h2>Login</h2>
+        {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label>Email:</label>
             <input
               type="email"
-              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label>Password:</label>
             <input
               type="password"
-              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          {error && <div className="error-message">{error}</div>}
-          <button type="submit" className="login-button">
-            Login
-          </button>
+          <button type="submit">Login</button>
         </form>
+        <div className="admin-login-link">
+          <p>Are you an admin?</p>
+          <button onClick={() => navigate('/admin/login')} className="admin-button">
+            Login as Admin
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -6,6 +6,8 @@ import Redeem from './components/Redeem';
 import Scan from './components/Scan';
 import ViewHistory from './components/ViewHistory';
 import AddMeal from './components/AddMeal';
+import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
 import './App.css';
 
 function App() {
@@ -61,7 +63,10 @@ function App() {
         </div>
 
         <Routes>
-
+          <Route path="/" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route 
             path="/add-meal" 
             element={<AddMeal user={user} />} 
@@ -83,8 +88,6 @@ function App() {
             path="/history" 
             element={user ? <ViewHistory /> : <Navigate to="/login" />} 
           />
-          <Route path="/" element={<Navigate to="/login" />} />
-
         </Routes>
       </div>
     </Router>
