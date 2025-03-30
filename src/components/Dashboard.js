@@ -38,7 +38,7 @@ const Dashboard = ({ user }) => {
       </div>
 
       <div className="dashboard-actions">
-        <button className="action-button" onClick={() => navigate('/redeem', { state: { setPoints } })}>
+        <button className="action-button" onClick={() => navigate('/redeem')}>
           Redeem Points
         </button>
         <button className="action-button" onClick={() => navigate('/scan')}>
