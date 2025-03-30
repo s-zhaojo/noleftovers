@@ -7,9 +7,16 @@ const Redeem = () => {
   const location = useLocation();
   const { setPoints } = location.state || {};  // Access setPoints passed from Dashboard
   
+  // Function to update points
   const handlePointDeduction = (pointsToDeduct) => {
     if (setPoints) {
       setPoints((prevPoints) => prevPoints - pointsToDeduct);  // Deduct points and update Dashboard
+    } else {
+      // Update localStorage directly if setPoints is not available
+      const currentPoints = parseInt(localStorage.getItem('points'), 10) || 0;
+      const newPoints = currentPoints - pointsToDeduct;
+      localStorage.setItem('points', newPoints);
+      navigate('/dashboard');  // Navigate back to the dashboard after deduction
     }
   };
 
