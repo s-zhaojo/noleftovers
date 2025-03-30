@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, firestore
+from models.user import User
 import os
 from dotenv import load_dotenv
 
@@ -10,18 +11,14 @@ load_dotenv()
 
 app = Flask(__name__)
 
-CORS(app, resources={
-    r"/verify-token": {
-        "origins": [
-            "http://localhost:3000",
-            "https://noleftovers-fe4a1.web.app",
-            "https://noleftovers-krng.vercel.app"
-        ],
-        "methods": ["POST", "OPTIONS"],
-        "allow_headers": ["Authorization", "Content-Type", "Accept"],
-        "supports_credentials": True
-    }
-})
+# Enable CORS for all routes with more permissive settings
+CORS(app, 
+     resources={r"/*": {
+         "origins": "*",  # Allow all origins
+         "methods": ["GET", "POST", "OPTIONS"],
+         "allow_headers": ["Authorization", "Content-Type", "Accept"],
+         "supports_credentials": True
+     }})
 
 # Initialize Firebase Admin
 cred = credentials.Certificate({
@@ -51,11 +48,30 @@ def verify_token():
         decoded_token = auth.verify_id_token(token)
         
         app.logger.info(f"Successfully verified token for user: {decoded_token['uid']}")
-        return jsonify({
-            'success': True,
-            'uid': decoded_token['uid'],
-            'email': decoded_token.get('email', '')
-        })
+        # Get user data from Firebase
+        user_id = decoded_token['uid']
+        
+        # Get user data from Firestore
+        db = firestore.client()
+        user_doc = db.collection('users').document(user_id).get()
+        
+        if not user_doc.exists:
+            return jsonify({'error': 'User not found'}), 404
+            
+        user_data = user_doc.to_dict()
+        
+        # Create User object
+        user = User(
+            uuid=user_id,
+            name=user_data.get('name', ''),
+            points=user_data.get('points', 0),
+            no_of_lunches_today=user_data.get('no_of_lunches_today', 0),
+            no_of_submissions_today=user_data.get('no_of_submissions_today', 0)
+        )
+        
+        return user.to_dict()
+
+        
     except auth.InvalidIdTokenError as e:
         app.logger.error(f"Invalid token: {str(e)}")
         return jsonify({'error': 'Invalid token'}), 401

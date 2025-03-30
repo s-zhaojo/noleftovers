@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { getUserData } from '../services/userService';
 import './Login.css';
+
+// Log environment variables
+console.log('Environment variables:', {
+  REACT_APP_BACKEND_URL: process.env.REACT_APP_BACKEND_URL,
+  NODE_ENV: process.env.NODE_ENV
+});
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -12,22 +19,20 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); // Clear any previous errors
+    setError('');
     
     try {
       // First authenticate with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
+      console.log('Firebase auth successful, got token');
 
-      if (!process.env.REACT_APP_BACKEND_URL) {
-        console.error('Backend URL is not configured!');
-        // Handle this error appropriately
-      }
+      // Temporarily hardcode the backend URL for testing
+      const backendUrl = 'https://noleftovers-backend.onrender.com';
+      console.log('Using backend URL:', backendUrl);
       
       // Send token to backend for verification
-      console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
-      console.log('Token:', token);
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/verify-token`, {
+      const response = await fetch(`${backendUrl}/verify-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,23 +43,36 @@ function Login() {
         credentials: 'include'
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      console.log('Backend response status:', response.status);
+      console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('Backend error response:', errorData);
         throw new Error(errorData.error || 'Authentication failed');
       }
 
       const data = await response.json();
       console.log('Login successful:', data);
+      
+      // Get user data from Firestore
+      const userData = await getUserData(data.uid);
+      
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify({
+        ...data,
+        ...userData
+      }));
+      
+      // Navigate to dashboard
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         setError('Invalid email or password');
       } else if (error.message === 'Failed to fetch') {
-        setError('Unable to connect to server. Please make sure the backend is running.');
+        console.error('Network error details:', error);
+        setError('Unable to connect to server. Please check your internet connection.');
       } else {
         setError(error.message || 'An error occurred during login');
       }
