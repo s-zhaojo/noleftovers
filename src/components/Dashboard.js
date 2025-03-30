@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = ({ user }) => {
-  const [points, setPoints] = useState(user.pts || 0);  // Local state to track points
   const navigate = useNavigate();
 
   return (
@@ -16,7 +15,7 @@ const Dashboard = ({ user }) => {
       <div className="dashboard-stats">
         <div className="stat-card">
           <h3>Total Points</h3>
-          <div className="stat-value">{points}</div>
+          <div className="stat-value">{user.pts || 0}</div>
         </div>
         <div className="stat-card">
           <h3>Lunches Bought Today</h3>
@@ -29,7 +28,7 @@ const Dashboard = ({ user }) => {
       </div>
 
       <div className="dashboard-actions">
-        <button className="action-button" onClick={() => navigate('/redeem', { state: { setPoints } })}>
+        <button className="action-button" onClick={() => navigate('/redeem')}>
           Redeem Points
         </button>
         <button className="action-button" onClick={() => navigate('/scan')}>
@@ -43,4 +42,4 @@ const Dashboard = ({ user }) => {
   );
 };
 
-export default Dashboard;
+export default Dashboard; 
