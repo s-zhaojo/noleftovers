@@ -33,7 +33,7 @@ def add_meal_endpoint():
     pts = data.get('pts')
     date_taken = datetime.strptime(date_taken, '%Y-%m-%d')
 
-    add_meal(user_id, date_taken, pts)
+    add_meal(user_id, pts)
 
     return jsonify({'success': True})
 
