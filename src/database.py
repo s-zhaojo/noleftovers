@@ -9,14 +9,11 @@ logger = logging.getLogger(__name__)
 def get_user_data(user_id):
     """Get user data from Firestore"""
     try:
-        # Use the correct structure: nsd417 -> users -> [user_id]
+        # Access the user document directly from the users collection
         user_doc = db.collection('nsd417').collection('users').document(user_id).get()
 
-        print(user_doc.to_dict())
-        
         if user_doc.exists:
             print(f"User data found for: {user_id}")
-            print(user_doc.to_dict())
             return user_doc.to_dict(), None, None
         else:
             print(f"Creating new user document for: {user_id}")
@@ -27,6 +24,7 @@ def get_user_data(user_id):
                 'pts': 0
             }
             
+            # Create a new user document with default data
             db.collection('nsd417').collection('users').document(user_id).set(default_user_data)
             return default_user_data, None, None
     except Exception as e:
