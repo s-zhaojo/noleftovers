@@ -1,10 +1,10 @@
 from firebase_admin import firestore
-from models import User
+from models.user import User
 from datetime import datetime
 import logging
+from firebase_init import db
 
 logger = logging.getLogger(__name__)
-db = firestore.client()
 
 def get_user_data(user_id):
     """Get user data from Firestore"""

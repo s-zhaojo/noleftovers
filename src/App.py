@@ -1,7 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import firebase_admin
-from firebase_admin import credentials
 import os
 from dotenv import load_dotenv
 from auth import verify_token, login_user
@@ -24,22 +22,6 @@ CORS(app,
          "supports_credentials": True,
          "expose_headers": ["Content-Type", "Authorization"]
      }})
-
-# Initialize Firebase Admin
-cred = credentials.Certificate({
-    "type": "service_account",
-    "project_id": os.getenv("FIREBASE_PROJECT_ID"),
-    "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
-    "private_key": os.getenv("FIREBASE_PRIVATE_KEY").strip('"').replace("\\n", "\n"),
-    "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
-    "client_id": os.getenv("FIREBASE_CLIENT_ID"),
-    "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
-    "token_uri": os.getenv("FIREBASE_TOKEN_URI"),
-    "auth_provider_x509_cert_url": os.getenv("FIREBASE_AUTH_PROVIDER_X509_CERT_URL"),
-    "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_X509_CERT_URL")
-})
-
-firebase_admin.initialize_app(cred)
 
 @app.route('/api/users/<user_id>', methods=['GET'])
 def get_user_data_endpoint(user_id):
