@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
 from database import get_user_data, update_user_data, create_user_object
@@ -23,30 +24,20 @@ CORS(app,
          "expose_headers": ["Content-Type", "Authorization"]
      }})
 
-@app.route('/api/users/<user_id>', methods=['GET'])
-def get_user_data_endpoint(user_id):
-    user_id, error_response, error_code = verify_token(request)
-    if error_response:
-        return error_response, error_code
 
-    user_data, error_response, error_code = get_user_data(user_id)
-    if error_response:
-        return jsonify(error_response), error_code
-
-    return jsonify(user_data)
-
-@app.route('/api/edit-users/<user_id>', methods=['PUT'])
-def update_user_data_endpoint(user_id):
-    user_id, error_response, error_code = verify_token(request)
-    if error_response:
-        return error_response, error_code
-
+@app.route('/add-meal', methods=['POST'])
+def add_meal_endpoint():
     data = request.get_json()
-    updated_data, error_response, error_code = update_user_data(user_id, data)
-    if error_response:
-        return jsonify(error_response), error_code
-
-    return jsonify(updated_data)
+    user_id = data.get('user_id')
+    date_taken = data.get('date_taken')
+    pts = data.get('pts')
+    date_taken = datetime.strptime(date_taken, '%Y-%m-%d')
+    
+    meal = Meal(user_id, date_taken, pts)
+    meal_dict = meal.to_dict()
+    db.collection('nsd417').collection('meals').add(meal_dict)
+    
+    return jsonify({'success': True})
 
 @app.route('/verify-token', methods=['POST'])
 def verify_token_endpoint():

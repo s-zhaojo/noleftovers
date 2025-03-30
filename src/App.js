@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
 import Scan from './components/Scan';
 import ViewHistory from './components/ViewHistory';
+import AddMeal from './components/AddMeal';
 import './App.css';
 
 function App() {
@@ -74,7 +75,11 @@ function App() {
           />
           <Route 
             path="/scan" 
-            element={user ? <Scan /> : <Navigate to="/login" />} 
+            element={user ? <Scan user={user} /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/add-meal" 
+            element={user ? <AddMeal user={user} /> : <Navigate to="/login" />} 
           />
           <Route 
             path="/history" 
