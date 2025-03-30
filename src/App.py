@@ -30,11 +30,18 @@ def add_meal_endpoint():
     user_id = data.get('user_id')
     date_taken = data.get('date_taken')
     pts = data.get('pts')
-    date_taken = datetime.strptime(date_taken, '%Y-%m-%d')
-
-    add_meal(user_id, pts)
-
-    return jsonify({'success': True})
+    
+    print(f"Received meal data: user_id={user_id}, date_taken={date_taken}, pts={pts}")  # Debug log
+    
+    try:
+        date_taken = datetime.strptime(date_taken, '%Y-%m-%d')
+        result, error_response, error_code = add_meal(user_id, date_taken, pts)
+        if error_response:
+            return jsonify(error_response), error_code
+        return jsonify({'success': True, 'data': result})
+    except ValueError as e:
+        print(f"Date parsing error: {str(e)}")  # Debug log
+        return jsonify({'error': 'Invalid date format'}), 400
 
 @app.route('/verify-token', methods=['POST'])
 def verify_token_endpoint():

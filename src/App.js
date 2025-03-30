@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
 import Scan from './components/Scan';
 import ViewHistory from './components/ViewHistory';
+import AddMeal from './components/AddMeal';
 import './App.css';
 
 function App() {
@@ -59,10 +60,13 @@ function App() {
           />
           <h1 className="title">No Leftovers</h1>
         </div>
-        
-        
 
         <Routes>
+
+          <Route 
+            path="/add-meal" 
+            element={<AddMeal user={user} />} 
+          />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route 
             path="/dashboard" 
@@ -76,12 +80,12 @@ function App() {
             path="/scan" 
             element={user ? <Scan user={user} /> : <Navigate to="/login" />} 
           />
-
           <Route 
             path="/history" 
             element={user ? <ViewHistory /> : <Navigate to="/login" />} 
           />
           <Route path="/" element={<Navigate to="/login" />} />
+
         </Routes>
       </div>
     </Router>
