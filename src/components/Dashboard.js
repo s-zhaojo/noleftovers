@@ -6,7 +6,7 @@ const Dashboard = ({ user }) => {
   const [points, setPoints] = useState(() => {
     // Try getting the points from localStorage first
     const savedPoints = localStorage.getItem('points');
-    return savedPoints ? parseInt(savedPoints, 10) : user.pts || 0;
+    return savedPoints ? parseInt(savedPoints, 10) : user.points || 0;
   });
   const navigate = useNavigate();
 
