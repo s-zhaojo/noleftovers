@@ -7,7 +7,7 @@ const Scan = () => {
 
   return (
     <div className="scan-container">
-      <h1>Scan QR Code</h1>
+      <h1>Scan</h1>
       <button onClick={() => navigate('/dashboard')} className="back-button">
         Back to Dashboard
       </button>
