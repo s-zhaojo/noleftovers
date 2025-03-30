@@ -1,20 +1,36 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './AddMeal.css';
 
-const AddMeal = ({ user }) => {
+const AddMeal = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setPoints } = location.state || {};  // Access setPoints passed from Dashboard
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handlePointAddition = (pointsToAdd) => {
+    if (setPoints) {
+      // Add points and update Dashboard through the setPoints function
+      setPoints((prevPoints) => prevPoints + pointsToAdd);
+    } else {
+      // If setPoints is not available, use localStorage to persist the points
+      const currentPoints = parseInt(localStorage.getItem('points'), 10) || 0;
+      const newPoints = currentPoints + pointsToAdd;
+      localStorage.setItem('points', newPoints);
+    }
+  };
 
   const handleAddMeal = async () => {
     setLoading(true);
     setError(null);
-    
+
     const testData = {
-      user_id: user.id,
+      // Data structure similar to what you'd send to the backend
+      user_id: "123",  // Replace with actual user ID
       date_taken: new Date().toISOString().split('T')[0],
-      pts: 10
+      pts: 10,  // Adding 10 points
     };
 
     console.log('Sending test data:', testData);  // Debug log
@@ -35,6 +51,7 @@ const AddMeal = ({ user }) => {
       if (!response.ok) throw new Error(data.error || 'Failed to add meal');
       
       alert('Meal added successfully!');
+      handlePointAddition(10);  // Add 10 points to the user after adding meal
       navigate('/dashboard');
     } catch (err) {
       console.error('Error:', err);  // Debug log
@@ -47,9 +64,9 @@ const AddMeal = ({ user }) => {
 
   return (
     <div className="add-meal-container">
-      <h1>Add Test Meal</h1>
+      <h1>Add Meal</h1>
       <div className="meal-info">
-        <p>User ID: {user.id}</p>
+        <p>User ID: 123</p>
         <p>Date: {new Date().toISOString().split('T')[0]}</p>
         <p>Points to add: 10</p>
       </div>
@@ -59,7 +76,7 @@ const AddMeal = ({ user }) => {
         className="submit-button"
         disabled={loading}
       >
-        {loading ? 'Adding Meal...' : 'Add Test Meal'}
+        {loading ? 'Adding Meal...' : 'Add Meal'}
       </button>
       <button onClick={() => navigate('/dashboard')} className="back-button">
         Back to Dashboard
@@ -69,4 +86,3 @@ const AddMeal = ({ user }) => {
 };
 
 export default AddMeal;
-
