@@ -1,50 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuth } from 'firebase/auth';
-const auth = getAuth();
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import './Login.css';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [adminId, setAdminId] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const db = getFirestore();
 
   const handleAdminLogin = async (e) => {
     e.preventDefault();
     setError('');
 
     try {
-      // Sign in with Firebase Auth
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const response = await fetch('https://noleftovers-backend.onrender.com/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ admin_id: adminId }),
+      });
 
-      // Check if user is admin in Firestore
-      const adminDoc = await getDoc(doc(db, 'admin', user.uid));
-      
-      if (!adminDoc.exists()) {
-        setError('Unauthorized: Admin access required');
-        return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to login as admin');
       }
 
-      // Get admin data
-      const adminData = adminDoc.data();
-      
       // Store admin data in localStorage
-      localStorage.setItem('adminData', JSON.stringify({
-        id: user.uid,
-        email: user.email,
-        ...adminData
-      }));
-
+      localStorage.setItem('adminData', JSON.stringify(data));
+      
       // Navigate to admin dashboard
       navigate('/admin/dashboard');
     } catch (error) {
       console.error('Admin login error:', error);
-      setError('Failed to login as admin');
+      setError(error.message || 'Failed to login as admin');
     }
   };
 
@@ -55,20 +44,11 @@ const AdminLogin = () => {
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleAdminLogin}>
           <div className="form-group">
-            <label>Email:</label>
+            <label>Admin ID:</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Password:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="text"
+              value={adminId}
+              onChange={(e) => setAdminId(e.target.value)}
               required
             />
           </div>

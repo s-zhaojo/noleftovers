@@ -228,4 +228,27 @@ def generate_qr_code(user_id):
             
     except Exception as e:
         logger.error(f"Error generating QR code: {str(e)}")
-        return None, {'error': 'Failed to generate QR code'}, 500 
+        return None, {'error': 'Failed to generate QR code'}, 500
+
+def verify_admin(admin_id):
+    """Verify admin credentials using admin ID"""
+    try:
+        logger.debug(f"Verifying admin ID: {admin_id}")
+        
+        # Check if the admin ID matches the expected value
+        if admin_id != 'nsd417':
+            logger.debug("Invalid admin ID")
+            return None, {'error': 'Invalid admin ID'}, 401
+            
+        # Return admin data without sensitive information
+        admin_data = {
+            'id': admin_id,
+            'role': 'admin'
+        }
+        
+        logger.debug("Admin ID verified successfully")
+        return admin_data, None, None
+        
+    except Exception as e:
+        logger.error(f"Error verifying admin ID: {str(e)}")
+        return None, {'error': 'Failed to verify admin ID'}, 500 

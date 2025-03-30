@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
-from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date, get_admin_data, update_admin_data, get_all_users, generate_qr_code
+from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date, get_admin_data, update_admin_data, get_all_users, generate_qr_code, verify_admin
 import logging
 from io import BytesIO
 
@@ -169,6 +169,23 @@ def get_qr_code_endpoint(user_id):
         as_attachment=True,
         download_name=f'qr_code_{user_id}.png'
     )
+
+@app.route('/admin/login', methods=['POST'])
+def admin_login_endpoint():
+    """Admin login endpoint"""
+    data = request.get_json()
+    admin_id = data.get('admin_id')
+
+    logger.debug(f"Admin login attempt with ID: {admin_id}")
+
+    # Verify admin ID
+    admin_data, error_response, error_code = verify_admin(admin_id)
+    if error_response:
+        logger.error(f"Admin login failed: {error_response}")
+        return error_response, error_code
+
+    logger.debug(f"Admin login successful: {admin_data}")
+    return jsonify(admin_data)
 
 @app.route('/')
 def home():
