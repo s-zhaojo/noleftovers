@@ -13,6 +13,18 @@ const Scan = () => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please upload a valid image file');
+        return;
+      }
+
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
       setError('');
@@ -51,11 +63,12 @@ const Scan = () => {
         body: formData,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to analyze image');
+        throw new Error(data.error || 'Failed to analyze image');
       }
 
-      const data = await response.json();
       setPoints(data.points);
 
       // Store the result in localStorage for the redeem page
@@ -68,7 +81,8 @@ const Scan = () => {
 
     } catch (error) {
       console.error('Analysis error:', error);
-      setError('Failed to analyze image. Please try again.');
+      setError(error.message || 'Failed to analyze image. Please try again.');
+      setPoints(null);
     } finally {
       setIsAnalyzing(false);
     }

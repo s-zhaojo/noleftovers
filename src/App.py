@@ -3,15 +3,28 @@ from flask_cors import CORS
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-from auth import verify_token, login_user
-from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date, get_admin_data, update_admin_data, get_all_users, generate_qr_code, verify_admin
 import logging
 from io import BytesIO
 from werkzeug.utils import secure_filename
 from PIL import Image
 import io
 import numpy as np
-from yolov5.detect import run_detection
+import cv2
+
+# Local imports
+from auth import verify_token, login_user
+from database import (
+    get_user_data, 
+    create_user_object, 
+    add_meal, 
+    get_user_meals, 
+    get_meals_by_date, 
+    get_admin_data, 
+    update_admin_data, 
+    get_all_users, 
+    generate_qr_code, 
+    verify_admin
+)
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -42,6 +55,29 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def calculate_food_volume(image):
+    """Calculate food volume from image"""
+    try:
+        # Convert PIL Image to numpy array
+        img = np.array(image)
+        
+        # Convert to grayscale
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        
+        # Apply threshold to get binary image
+        _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+        
+        # Calculate the ratio of white pixels (food) to total pixels
+        total_pixels = binary.size
+        food_pixels = np.sum(binary == 255)
+        volume = food_pixels / total_pixels
+        
+        return float(volume)
+        
+    except Exception as e:
+        logger.error(f"Error calculating food volume: {str(e)}")
+        return 0.0
 
 @app.route('/add-meal', methods=['POST'])
 def add_meal_endpoint():
@@ -217,10 +253,14 @@ def analyze_food_endpoint():
             image_bytes = file.read()
             image = Image.open(io.BytesIO(image_bytes))
             
-            logger.debug(f"Processing image: {file.filename}")
+            # Convert to RGB if needed
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
             
-            # Run ML model detection
-            volume = run_detection(image)
+            logger.debug(f"Processing image: {file.filename}, size: {image.size}, mode: {image.mode}")
+            
+            # Calculate food volume
+            volume = calculate_food_volume(image)
             logger.debug(f"Detected food volume: {volume}")
             
             # Calculate points based on volume
@@ -246,8 +286,8 @@ def analyze_food_endpoint():
             })
             
         except Exception as e:
-            logger.error(f"Error analyzing image: {str(e)}")
-            return jsonify({'error': 'Failed to analyze image'}), 500
+            logger.error(f"Error analyzing image: {str(e)}", exc_info=True)
+            return jsonify({'error': f'Failed to analyze image: {str(e)}'}), 500
             
     logger.error(f"Invalid file type: {file.filename}")
     return jsonify({'error': 'Invalid file type'}), 400
