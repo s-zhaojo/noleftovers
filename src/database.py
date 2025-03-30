@@ -11,6 +11,8 @@ def get_user_data(user_id):
     try:
         # Use the correct structure: nsd417 -> users -> [user_id]
         user_doc = db.collection('nsd417').collection('users').document(user_id).get()
+
+        print(user_doc.to_dict())
         
         if user_doc.exists:
             print(f"User data found for: {user_id}")
@@ -30,26 +32,6 @@ def get_user_data(user_id):
     except Exception as e:
         logger.error(f"Error getting user data: {str(e)}")
         return None, {'error': 'Failed to get user data'}, 500
-
-def update_user_data(user_id, data):
-    """Update user data in Firestore"""
-    try:
-        user_ref = db.collection('nsd417').collection('users').document(user_id)
-        
-        update_data = {
-            **data,
-            'lastUpdated': datetime.now().isoformat()
-        }
-        
-        user_ref.update(update_data)
-        logger.info(f"Successfully updated user data for: {user_id}")
-        
-        # Return updated user data
-        updated_doc = user_ref.get()
-        return updated_doc.to_dict(), None, None
-    except Exception as e:
-        logger.error(f"Error updating user data: {str(e)}")
-        return None, {'error': 'Failed to update user data'}, 500
 
 def create_user_object(user_id, user_data):
     """Create a User object from Firestore data"""

@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from auth import verify_token, login_user
-from database import get_user_data, update_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date
+from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date
 # Load environment variables
 load_dotenv()
 
