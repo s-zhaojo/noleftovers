@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
+import Login from './components/Login';
 
 function App() {
   const [username, setUsername] = useState('');
@@ -67,6 +68,8 @@ function App() {
         </div>
 
         <Routes>
+           <Route path="/login" element={<Login />} />
+           <Route path="/" element={<Navigate to="/login" replace />} />
           {/* Add routes for login or other pages here */}
         </Routes>
       </div>
