@@ -2,8 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
-const Dashboard = ({ user }) => {
+const Dashboard = () => {
+  const [user, setUser] = useState({
+    pts: 0,
+    name: 'User'
+  });
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch user data on component mount
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('https://noleftovers-backend.onrender.com/get-user', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <div className="dashboard-container">
@@ -36,6 +62,9 @@ const Dashboard = ({ user }) => {
         </button>
         <button className="action-button" onClick={() => navigate('/history')}>
           View History
+        </button>
+        <button className="action-button" onClick={() => navigate('/add-meal', { state: { setPoints } })}>
+          Add Meal
         </button>
       </div>
     </div>
