@@ -31,6 +31,7 @@ function Login() {
       }
 
       const data = await response.json();
+      console.log('Login successful:', data);
       
       // Store user data in localStorage
       localStorage.setItem('userId', data.userId);
@@ -40,13 +41,7 @@ function Login() {
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      console.error('Network error details:', error);
-      
-      if (error.message === 'Failed to fetch') {
-        setError('Unable to connect to server. Please check your internet connection.');
-      } else {
-        setError(error.message || 'Invalid email or password');
-      }
+      setError(error.message || 'Invalid email or password');
     }
   };
 

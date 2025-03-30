@@ -20,3 +20,12 @@ class User:
     
     def get_no_of_submissions_today(self):
         return self.no_of_submissions_today
+
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'name': self.name,
+            'points': self.points,
+            'no_of_lunches_today': self.no_of_lunches_today,
+            'no_of_submissions_today': self.no_of_submissions_today
+        }

@@ -28,17 +28,22 @@ def login_user(email, password):
         if not email or not password:
             return None, jsonify({'error': 'Email and password are required'}), 400
 
-        # Sign in with email and password using Firebase Admin SDK
+        # Get user by email
         user = auth.get_user_by_email(email)
         
+        # Return user data
         return {
             'userId': user.uid,
-            'email': user.email
+            'email': user.email,
+            'name': user.display_name or '',
+            'photoURL': user.photo_url or ''
         }, None, None
 
     except auth.UserNotFoundError:
+        logger.error(f"User not found: {email}")
         return None, jsonify({'error': 'User not found'}), 404
     except auth.InvalidPasswordError:
+        logger.error(f"Invalid password for user: {email}")
         return None, jsonify({'error': 'Invalid password'}), 401
     except Exception as e:
         logger.error(f"Login error: {str(e)}")
