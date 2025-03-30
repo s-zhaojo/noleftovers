@@ -15,7 +15,10 @@ app = Flask(__name__)
 # Enable CORS for all routes with more permissive settings
 CORS(app, 
      resources={r"/*": {
-         "origins": ["https://noleftovers.vercel.app", "http://localhost:3000"],  # Allow Vercel and local development
+         "origins": [
+             "https://noleftovers-krng.vercel.app",  # Current Vercel deployment
+             "http://localhost:3000"  # Local development
+         ],
          "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
          "allow_headers": ["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
          "supports_credentials": True,

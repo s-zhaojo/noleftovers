@@ -18,8 +18,10 @@ function Login() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        mode: 'cors',
         credentials: 'include'
       });
 
@@ -38,7 +40,13 @@ function Login() {
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      setError(error.message || 'Invalid email or password');
+      console.error('Network error details:', error);
+      
+      if (error.message === 'Failed to fetch') {
+        setError('Unable to connect to server. Please check your internet connection.');
+      } else {
+        setError(error.message || 'Invalid email or password');
+      }
     }
   };
 
@@ -74,6 +82,5 @@ function Login() {
     </div>
   );
 }
-// 
 
 export default Login; 
