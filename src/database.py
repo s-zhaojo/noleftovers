@@ -10,7 +10,7 @@ def get_user_data(user_id):
     """Get user data from Firestore"""
     try:
         logger.debug(f"Attempting to get user data for user_id: {user_id}")
-        # Access the user document directly from the users collection
+        # Access the user document directly from the users collection in nsd417 database
         user_doc = db.collection('users').document(user_id).get()
         logger.debug(f"Firestore query completed for user_id: {user_id}")
 

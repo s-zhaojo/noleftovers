@@ -36,8 +36,8 @@ except ValueError:
     logger.debug("Firebase app initialized successfully")
 
 logger.debug("Initializing Firestore client...")
-# Initialize Firestore
-db = firestore.client()
+# Initialize Firestore with the specific database
+db = firestore.client(database='nsd417')
 logger.debug("Firestore client initialized successfully")
 
 # Test the connection
