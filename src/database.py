@@ -1,5 +1,5 @@
 from firebase_admin import firestore
-from models.user import User
+from models import User
 from datetime import datetime
 import logging
 
