@@ -22,7 +22,7 @@ const Redeem = () => {
       
       <div className="redeem-items">
         <div className="redeem-item">
-          <button className="action-button" onClick={() => navigate('/dashboard')}>
+          <button onClick={() => handlePointDeduction(500)} className="action-button">
             <img 
               src="https://m.media-amazon.com/images/I/71zK01gJfML.jpg" 
               alt="Fruit Snack" 
@@ -32,7 +32,7 @@ const Redeem = () => {
           <p className="points-tag">500 Points</p>
         </div>
         <div className="redeem-item">
-          <button className="action-button" onClick={() => navigate('/dashboard')}>
+          <button onClick={() => handlePointDeduction(1000)} className="action-button">
             <img 
               src="https://live.staticflickr.com/65535/52765596162_1bee372f32_h.jpg" 
               alt="Lunch Tray" 
