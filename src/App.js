@@ -58,7 +58,6 @@ function App() {
             alt="No Leftovers Logo" 
             className="title-image" 
           />
-          <h1 className="title">No Leftovers</h1>
         </div>
 
         <Routes>
