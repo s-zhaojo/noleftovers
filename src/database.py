@@ -10,42 +10,31 @@ def get_user_data(user_id):
     """Get user data from Firestore"""
     try:
         logger.debug(f"Attempting to get user data for user_id: {user_id}")
-        # Access the user document from the users collection
-        user_doc = db.collection('users').document(user_id).get()
+        
+        # Log the collection and document path
+        collection_ref = db.collection('users')
+        doc_ref = collection_ref.document(user_id)
+        logger.debug(f"Accessing Firestore path: users/{user_id}")
+        
+        # Get the document
+        user_doc = doc_ref.get()
         logger.debug(f"Firestore query completed for user_id: {user_id}")
 
         if user_doc.exists:
             logger.debug(f"User data found for: {user_id}")
             user_data = user_doc.to_dict()
-            logger.debug(f"User data from Firestore: {user_data}")
+            logger.debug(f"Raw user data from Firestore: {user_data}")
             
-            # Ensure all required fields exist
-            required_fields = {
-                'name': user_data.get('name', ''),
-                'no_lunches_today': user_data.get('no_lunches_today', 0),
-                'no_of_submissions_today': user_data.get('no_of_submissions_today', 0),
-                'pts': user_data.get('pts', 0)
-            }
+            # Log all fields in the document
+            for field, value in user_data.items():
+                logger.debug(f"Field '{field}': {value}")
             
-            # Update the document if any fields are missing
-            if user_data != required_fields:
-                logger.debug(f"Updating user document with missing fields: {required_fields}")
-                db.collection('users').document(user_id).update(required_fields)
-            
-            return required_fields, None, None
+            # Return the raw data without modification
+            return user_data, None, None
         else:
-            logger.debug(f"Creating new user document for: {user_id}")
-            default_user_data = {
-                'name': '',
-                'no_lunches_today': 0,
-                'no_of_submissions_today': 0,
-                'pts': 0
-            }
+            logger.debug(f"No document found for user_id: {user_id}")
+            return None, {'error': 'User document not found'}, 404
             
-            # Create a new user document with default data
-            db.collection('users').document(user_id).set(default_user_data)
-            logger.debug(f"Created new user document with default data: {default_user_data}")
-            return default_user_data, None, None
     except Exception as e:
         logger.error(f"Error getting user data for {user_id}: {str(e)}")
         return None, {'error': 'Failed to get user data'}, 500

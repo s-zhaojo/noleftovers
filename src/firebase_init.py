@@ -34,26 +34,31 @@ def initialize_firebase():
         
         # Initialize the app with the specific database
         app = firebase_admin.initialize_app(cred, {
-            'databaseURL': f"https://{os.getenv('FIREBASE_PROJECT_ID')}.firebaseio.com",
-            'database': 'nsd417'
+            'projectId': os.getenv("FIREBASE_PROJECT_ID"),
+            'databaseURL': f"https://{os.getenv('FIREBASE_PROJECT_ID')}.firebaseio.com"
         })
-        logger.debug("Firebase app initialized successfully with nsd417 database")
+        logger.debug(f"Firebase app initialized successfully with project ID: {os.getenv('FIREBASE_PROJECT_ID')}")
 
     # Get Firestore client
     logger.debug("Getting Firestore client...")
     db = firestore.client()
     logger.debug("Firestore client initialized successfully")
 
-    # Test the connection
+    # Test the connection and list all collections
     try:
-        # Try to access the users collection in nsd417 database
+        collections = db.collections()
+        logger.debug("Available collections:")
+        for collection in collections:
+            logger.debug(f"- {collection.id}")
+            
+        # Try to access the users collection
         users_ref = db.collection('users')
-        # Just get the first document to test the connection
+        # Get the first document to test the connection
         first_user = users_ref.limit(1).get()
-        logger.debug("Successfully connected to nsd417 database")
+        logger.debug("Successfully connected to users collection")
         return db
     except Exception as e:
-        logger.error(f"Failed to connect to nsd417 database: {str(e)}")
+        logger.error(f"Failed to connect to Firestore: {str(e)}")
         raise
 
 # Initialize Firebase and get the Firestore client
