@@ -27,8 +27,11 @@ function Login() {
       const token = await userCredential.user.getIdToken();
       console.log('Firebase auth successful, got token');
 
-      // Temporarily hardcode the backend URL for testing
-      const backendUrl = 'https://noleftovers-backend.onrender.com';
+      // Get backend URL from environment variable
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error('Backend URL not configured');
+      }
       console.log('Using backend URL:', backendUrl);
       
       // Send token to backend for verification
@@ -40,7 +43,7 @@ function Login() {
           'Accept': 'application/json'
         },
         mode: 'cors',
-        credentials: 'include'
+        credentials: 'omit'
       });
 
       console.log('Backend response status:', response.status);
