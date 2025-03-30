@@ -11,8 +11,10 @@ const Login = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    console.log('Attempting login with:', { email });
 
     try {
+      console.log('Sending request to backend...');
       const response = await fetch('https://noleftovers-backend.onrender.com/login', {
         method: 'POST',
         headers: {
@@ -24,21 +26,40 @@ const Login = ({ onLogin }) => {
         credentials: 'include'
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Full response data:', JSON.stringify(data, null, 2));
 
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Store the token
-      localStorage.setItem('token', data.token);
+      // Transform the response data into the expected user object structure
+      const userData = {
+        email: data.email,
+        name: data.name || email.split('@')[0], // Use email username if name is empty
+        photoURL: data.photoURL || '',
+        userId: data.userId,
+        points: 0,
+        lunchesBought: 0,
+        photosSubmitted: 0
+      };
+
+      // Store the token (if provided)
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        console.log('Token stored in localStorage');
+      }
       
       // Call the onLogin callback with user data
-      onLogin(data.user);
+      console.log('Calling onLogin with user data:', userData);
+      onLogin(userData);
       
       // Navigate to dashboard
+      console.log('Navigating to dashboard...');
       navigate('/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.message);
     }
   };
