@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 import logging
-from google.cloud import firestore
+from firebase_init import db  # Import the initialized Firestore client
 
 # Local imports
 from auth import verify_token, login_user
@@ -138,8 +138,8 @@ def update_points():
         if password != 'nsd417':
             return jsonify({'message': 'Invalid teacher password'}), 401
 
-        # Update user points in database
-        user_ref = firestore.Client().collection('users').document(user_id)
+        # Update user points in database using the initialized client
+        user_ref = db.collection('users').document(user_id)
         user_doc = user_ref.get()
 
         if not user_doc.exists:
