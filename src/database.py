@@ -9,14 +9,18 @@ logger = logging.getLogger(__name__)
 def get_user_data(user_id):
     """Get user data from Firestore"""
     try:
+        logger.debug(f"Attempting to get user data for user_id: {user_id}")
         # Access the user document directly from the users collection
-        user_doc = db.collection('nsd417').collection('users').document(user_id).get()
+        user_doc = db.collection('users').document(user_id).get()
+        logger.debug(f"Firestore query completed for user_id: {user_id}")
 
         if user_doc.exists:
-            print(f"User data found for: {user_id}")
-            return user_doc.to_dict(), None, None
+            logger.debug(f"User data found for: {user_id}")
+            user_data = user_doc.to_dict()
+            logger.debug(f"User data: {user_data}")
+            return user_data, None, None
         else:
-            print(f"Creating new user document for: {user_id}")
+            logger.debug(f"Creating new user document for: {user_id}")
             default_user_data = {
                 'name': '',
                 'no_lunches_today': 0,
@@ -25,10 +29,11 @@ def get_user_data(user_id):
             }
             
             # Create a new user document with default data
-            db.collection('nsd417').collection('users').document(user_id).set(default_user_data)
+            db.collection('users').document(user_id).set(default_user_data)
+            logger.debug(f"Created new user document with default data: {default_user_data}")
             return default_user_data, None, None
     except Exception as e:
-        logger.error(f"Error getting user data: {str(e)}")
+        logger.error(f"Error getting user data for {user_id}: {str(e)}")
         return None, {'error': 'Failed to get user data'}, 500
 
 def create_user_object(user_id, user_data):

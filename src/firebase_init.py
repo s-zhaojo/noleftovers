@@ -2,10 +2,16 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os
 from dotenv import load_dotenv
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
 
+logger.debug("Loading Firebase credentials...")
 # Initialize Firebase Admin
 cred = credentials.Certificate({
     "type": "service_account",
@@ -20,11 +26,24 @@ cred = credentials.Certificate({
     "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_X509_CERT_URL")
 })
 
+logger.debug("Initializing Firebase app...")
 # Initialize Firebase app if it hasn't been initialized yet
 try:
-    firebase_admin.get_app()
+    app = firebase_admin.get_app()
+    logger.debug("Firebase app already initialized")
 except ValueError:
-    firebase_admin.initialize_app(cred)
+    app = firebase_admin.initialize_app(cred)
+    logger.debug("Firebase app initialized successfully")
 
+logger.debug("Initializing Firestore client...")
 # Initialize Firestore
-db = firestore.client() 
+db = firestore.client()
+logger.debug("Firestore client initialized successfully")
+
+# Test the connection
+try:
+    # Try to list collections to verify connection
+    collections = db.collections()
+    logger.debug(f"Successfully connected to Firestore. Available collections: {[c.id for c in collections]}")
+except Exception as e:
+    logger.error(f"Failed to connect to Firestore: {str(e)}") 
