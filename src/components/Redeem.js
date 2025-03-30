@@ -1,12 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Redeem.css';
 
 const Redeem = () => {
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { setPoints } = location.state || {};  // Access setPoints passed from Dashboard
+  const user = JSON.parse(localStorage.getItem('user'));
   
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    fetchQrCode();
+  }, [user, navigate]);
+
+  const fetchQrCode = async () => {
+    try {
+      const response = await fetch(`https://noleftovers-backend.onrender.com/qr-code/${user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${user.id}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch QR code');
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setQrCodeUrl(url);
+    } catch (error) {
+      console.error('Error fetching QR code:', error);
+      setError('Failed to load QR code');
+    }
+  };
+
   // Function to update points
   const handlePointDeduction = (pointsToDeduct) => {
     if (setPoints) {
@@ -20,34 +53,36 @@ const Redeem = () => {
     }
   };
 
+  const handleRedeemPoints = () => {
+    // Your existing redeem points logic
+  };
+
+  const handleViewHistory = () => {
+    navigate('/view-history');
+  };
+
   return (
     <div className="redeem-container">
-      <h1>Redeem Points</h1>
-      <button onClick={() => navigate('/dashboard')} className="back-button">
-        Back to Dashboard
-      </button>
+      <h2>Redeem Points</h2>
+      {error && <div className="error-message">{error}</div>}
       
-      <div className="redeem-items">
-        <div className="redeem-item">
-          <button onClick={() => handlePointDeduction(500)} className="action-button">
-            <img 
-              src="https://m.media-amazon.com/images/I/71zK01gJfML.jpg" 
-              alt="Fruit Snack" 
-              className="redeem-image" 
-            />
-          </button>
-          <p className="points-tag">500 Points</p>
-        </div>
-        <div className="redeem-item">
-          <button onClick={() => handlePointDeduction(1000)} className="action-button">
-            <img 
-              src="https://live.staticflickr.com/65535/52765596162_1bee372f32_h.jpg" 
-              alt="Lunch Tray" 
-              className="redeem-image" 
-            />
-          </button>
-          <p className="points-tag">1000 Points</p>
-        </div>
+      {/* QR Code Section */}
+      <div className="qr-code-section">
+        <h3>Your QR Code</h3>
+        {qrCodeUrl && (
+          <img src={qrCodeUrl} alt="Your QR Code" className="qr-code-image" />
+        )}
+        <p className="qr-code-info">Show this QR code to redeem your points</p>
+      </div>
+
+      {/* Existing Buttons */}
+      <div className="redeem-buttons">
+        <button onClick={handleRedeemPoints} className="redeem-button">
+          Redeem Points
+        </button>
+        <button onClick={handleViewHistory} className="history-button">
+          View History
+        </button>
       </div>
     </div>
   );
