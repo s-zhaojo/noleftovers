@@ -51,14 +51,14 @@ const Login = ({ onLogin }) => {
       
       // Call the onLogin callback with user data
       console.log('Calling onLogin with user data:', userData);
-      onLogin(userData);
+      await onLogin(userData);
       
-      // Navigate to dashboard
+      // Navigate to dashboard after successful login
       console.log('Navigating to dashboard...');
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message);
+      setError(err.message || 'Login failed. Please try again.');
     }
   };
 
