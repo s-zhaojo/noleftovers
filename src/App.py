@@ -7,6 +7,11 @@ from auth import verify_token, login_user
 from database import get_user_data, create_user_object, add_meal, get_user_meals, get_meals_by_date, get_admin_data, update_admin_data, get_all_users, generate_qr_code, verify_admin
 import logging
 from io import BytesIO
+from werkzeug.utils import secure_filename
+from PIL import Image
+import io
+import numpy as np
+from yolov5.detect import run_detection
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -30,6 +35,13 @@ CORS(app,
          "expose_headers": ["Content-Type", "Authorization"]
      }})
 
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/add-meal', methods=['POST'])
 def add_meal_endpoint():
@@ -186,6 +198,46 @@ def admin_login_endpoint():
 
     logger.debug(f"Admin login successful: {admin_data}")
     return jsonify(admin_data)
+
+@app.route('/analyze-food', methods=['POST'])
+def analyze_food_endpoint():
+    """Analyze food image using ML model"""
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+        
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+        
+    if file and allowed_file(file.filename):
+        try:
+            # Read the image
+            image_bytes = file.read()
+            image = Image.open(io.BytesIO(image_bytes))
+            
+            # Run ML model detection
+            volume = run_detection(image)
+            
+            # Calculate points based on volume
+            if volume == 0:
+                points = 50
+            elif volume < 0.3:
+                points = -10
+            elif volume < 0.6:
+                points = -25
+            else:
+                points = -40
+                
+            return jsonify({
+                'volume': volume,
+                'points': points
+            })
+            
+        except Exception as e:
+            logger.error(f"Error analyzing image: {str(e)}")
+            return jsonify({'error': 'Failed to analyze image'}), 500
+            
+    return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/')
 def home():
