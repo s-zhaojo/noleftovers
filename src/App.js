@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import Redeem from './components/Redeem';
+import Scan from './components/Scan';
+import ViewHistory from './components/ViewHistory';
 import './App.css';
 
 function App() {
@@ -64,6 +67,18 @@ function App() {
           <Route 
             path="/dashboard" 
             element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/redeem" 
+            element={user ? <Redeem /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/scan" 
+            element={user ? <Scan /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/history" 
+            element={user ? <ViewHistory /> : <Navigate to="/login" />} 
           />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>

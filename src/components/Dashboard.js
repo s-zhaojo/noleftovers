@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = ({ user }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -25,9 +28,15 @@ const Dashboard = ({ user }) => {
       </div>
 
       <div className="dashboard-actions">
-        <button className="action-button">Buy Lunch</button>
-        <button className="action-button">Submit Photo</button>
-        <button className="action-button">View History</button>
+        <button className="action-button" onClick={() => navigate('/redeem')}>
+          Redeem Points
+        </button>
+        <button className="action-button" onClick={() => navigate('/scan')}>
+          Scan QR Code
+        </button>
+        <button className="action-button" onClick={() => navigate('/history')}>
+          View History
+        </button>
       </div>
     </div>
   );
