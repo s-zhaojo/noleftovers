@@ -17,8 +17,22 @@ def get_user_data(user_id):
         if user_doc.exists:
             logger.debug(f"User data found for: {user_id}")
             user_data = user_doc.to_dict()
-            logger.debug(f"User data: {user_data}")
-            return user_data, None, None
+            logger.debug(f"User data from Firestore: {user_data}")
+            
+            # Ensure all required fields exist
+            required_fields = {
+                'name': user_data.get('name', ''),
+                'no_lunches_today': user_data.get('no_lunches_today', 0),
+                'no_of_submissions_today': user_data.get('no_of_submissions_today', 0),
+                'pts': user_data.get('pts', 0)
+            }
+            
+            # Update the document if any fields are missing
+            if user_data != required_fields:
+                logger.debug(f"Updating user document with missing fields: {required_fields}")
+                db.collection('users').document(user_id).update(required_fields)
+            
+            return required_fields, None, None
         else:
             logger.debug(f"Creating new user document for: {user_id}")
             default_user_data = {
@@ -40,16 +54,19 @@ def create_user_object(user_id, user_data):
     """Create a User object from Firestore data"""
     try:
         logger.debug(f"Creating user object with data: user_id={user_id}, user_data={user_data}")
-        # Map Firestore data to User object fields with correct field names
+        
+        # Map Firestore data to User object fields
         user = User(
             uuid=user_id,
-            name=user_data.get('name', ''),
+            name=user_data.get('name', ''),  # Get name from Firestore
             points=user_data.get('pts', 0),
             no_of_lunches_today=user_data.get('no_lunches_today', 0),
             no_of_submissions_today=user_data.get('no_of_submissions_today', 0)
         )
-        logger.debug(f"Successfully created user object: {user.to_dict()}")
-        return user.to_dict(), None, None
+        
+        user_dict = user.to_dict()
+        logger.debug(f"Created user object: {user_dict}")
+        return user_dict, None, None
     except Exception as e:
         logger.error(f"Error creating user object: {str(e)}")
         logger.error(f"User data that caused error: {user_data}")
