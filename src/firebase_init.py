@@ -41,16 +41,14 @@ def initialize_firebase():
     db = firestore.client()
     logger.debug("Firestore client initialized successfully")
 
-    # Test the connection by trying to access the nsd417 database
+    # Test the connection
     try:
-        # Try to access the users collection in nsd417 database
-        users_ref = db.collection('nsd417').collection('users')
-        # Just get the first document to test the connection
-        first_user = users_ref.limit(1).get()
-        logger.debug("Successfully connected to nsd417 database")
+        # Try to access the root collections
+        collections = db.collections()
+        logger.debug(f"Successfully connected to Firestore. Available collections: {[c.id for c in collections]}")
         return db
     except Exception as e:
-        logger.error(f"Failed to connect to nsd417 database: {str(e)}")
+        logger.error(f"Failed to connect to Firestore: {str(e)}")
         raise
 
 # Initialize Firebase and get the Firestore client

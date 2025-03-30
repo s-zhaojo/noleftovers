@@ -10,8 +10,8 @@ def get_user_data(user_id):
     """Get user data from Firestore"""
     try:
         logger.debug(f"Attempting to get user data for user_id: {user_id}")
-        # Access the user document from the nsd417 database
-        user_doc = db.collection('nsd417').collection('users').document(user_id).get()
+        # Access the user document from the users collection
+        user_doc = db.collection('users').document(user_id).get()
         logger.debug(f"Firestore query completed for user_id: {user_id}")
 
         if user_doc.exists:
@@ -29,7 +29,7 @@ def get_user_data(user_id):
             }
             
             # Create a new user document with default data
-            db.collection('nsd417').collection('users').document(user_id).set(default_user_data)
+            db.collection('users').document(user_id).set(default_user_data)
             logger.debug(f"Created new user document with default data: {default_user_data}")
             return default_user_data, None, None
     except Exception as e:
@@ -63,11 +63,11 @@ def add_meal(user_id, points):
             'userId': user_id
         }
         
-        # Add to meals collection in nsd417 database
-        db.collection('nsd417').collection('meals').add(meal_data)
+        # Add to meals collection
+        db.collection('meals').add(meal_data)
         
         # Update user's points and lunch count
-        user_ref = db.collection('nsd417').collection('users').document(user_id)
+        user_ref = db.collection('users').document(user_id)
         user_doc = user_ref.get()
         
         if user_doc.exists:
@@ -91,8 +91,8 @@ def add_meal(user_id, points):
 def get_user_meals(user_id):
     """Get all meals for a specific user"""
     try:
-        # Query meals collection in nsd417 database for user's meals
-        meals = db.collection('nsd417').collection('meals').where('userId', '==', user_id).get()
+        # Query meals collection for user's meals
+        meals = db.collection('meals').where('userId', '==', user_id).get()
         
         # Convert to list of dictionaries
         meals_list = []
@@ -113,8 +113,8 @@ def get_meals_by_date(user_id, date):
         start_of_day = datetime.combine(date, datetime.min.time())
         end_of_day = datetime.combine(date, datetime.max.time())
         
-        # Query meals collection in nsd417 database for user's meals on the specified date
-        meals = db.collection('nsd417').collection('meals').where('userId', '==', user_id)\
+        # Query meals collection for user's meals on the specified date
+        meals = db.collection('meals').where('userId', '==', user_id)\
             .where('date_taken', '>=', start_of_day)\
             .where('date_taken', '<=', end_of_day)\
             .get()
