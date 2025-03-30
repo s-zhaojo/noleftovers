@@ -32,7 +32,7 @@ const Dashboard = ({ user }) => {
           Redeem Points
         </button>
         <button className="action-button" onClick={() => navigate('/scan')}>
-          Scan QR Code
+          Scan 
         </button>
         <button className="action-button" onClick={() => navigate('/history')}>
           View History
